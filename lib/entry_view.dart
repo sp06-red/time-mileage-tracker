@@ -2,6 +2,7 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter/material.dart';
 import 'entry.dart';
 import 'gps_trip.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -102,30 +103,38 @@ class _EntryView extends State<EntryView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
       body: Column(
         children: [
-          ValueListenableBuilder(
-            valueListenable: entryLog,
-            builder: (BuildContext context, List<Entry> value, Widget? child) {
-              return ListView(
-                children: [
-                  for (Entry entry in value)
-                    ListTile(
-                      leading: Icon(Icons.local_taxi),
-                      title: Text(entry.toString()),
-                    ),
-                ],
-              );
-            },
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: entryLog,
+              builder: (BuildContext context, List<Entry> value, Widget? child) {
+                return ListView(
+                  children: [
+                    for (Entry entry in value)
+                      ListTile(
+                        leading: Icon(Icons.local_taxi),
+                        title: Text(entry.toString()),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
+              PermissionStatus status = await gpsTrip.startTrip();
+              if (!status.isGranted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Location permission is not granted')),
+                );
+              } else {
+                await gpsTrip.trackLocation();
+              }
+
               await gpsTrip.startTrip();
               await gpsTrip.trackLocation();
             },
