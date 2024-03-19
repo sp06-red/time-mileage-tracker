@@ -15,6 +15,7 @@ class _EntryView extends State<EntryView> {
     DateTime? start;
     DateTime? end;
     int? mileage;
+    List<String> taglist = <String>[];
 
     await showDialog(
       context: context,
@@ -24,49 +25,23 @@ class _EntryView extends State<EntryView> {
           content: Column(
             children: <Widget>[
               TextField(
-                onChanged: (value) {
-                  // Split the input string into date and time parts
-                  var dateTimeParts = value.split(' ');
-                  // Split the date part into year, month, and day
-                  var dateParts = dateTimeParts[0].split('-');
-                  // Split the time part into hour and minute
-                  var timeParts = dateTimeParts[1].split(':');
-                  // Create a DateTime object using the parsed date and time
-                  start = DateTime(
-                    int.parse(dateParts[0]),
-                    int.parse(dateParts[1]),
-                    int.parse(dateParts[2]),
-                    int.parse(timeParts[0]),
-                    int.parse(timeParts[1]),
-                  );
-                },
-                decoration: InputDecoration(hintText: "Enter start time (yyyy-mm-dd hh:mm)"),
+                onChanged: (value) { start = DateTime.parse(value); },
+                decoration: InputDecoration(hintText: "Enter start time (yyyy-mm-ddThh:mm)"),
               ),
               TextField(
-                onChanged: (value) {
-                  // Split the input string into date and time parts
-                  var dateTimeParts = value.split(' ');
-                  // Split the date part into year, month, and day
-                  var dateParts = dateTimeParts[0].split('-');
-                  // Split the time part into hour and minute
-                  var timeParts = dateTimeParts[1].split(':');
-                  // Create a DateTime object using the parsed date and time
-                  end = DateTime(
-                    int.parse(dateParts[0]),
-                    int.parse(dateParts[1]),
-                    int.parse(dateParts[2]),
-                    int.parse(timeParts[0]),
-                    int.parse(timeParts[1]),
-                  );
-                },
-                decoration: InputDecoration(hintText: "Enter end time (yyyy-mm-dd hh:mm)"),
+                onChanged: (value) { end = DateTime.parse(value); },
+                decoration: InputDecoration(hintText: "Enter end time (yyyy-mm-ddThh:mm)"),
               ),
               TextField(
-                onChanged: (value) {
-                  // Parse the mileage as an integer
-                  mileage = int.parse(value);
-                },
+                onChanged: (value) { mileage = int.parse(value); },
                 decoration: InputDecoration(hintText: "Enter mileage"),
+              ),
+              TextField(
+                onChanged: (value) {
+                  String n = value;
+                  taglist = n.split(' ');
+                },
+                decoration: InputDecoration(hintText: "Enter tags (Optional)"),
               ),
             ],
           ),
@@ -83,6 +58,7 @@ class _EntryView extends State<EntryView> {
                 if (start != null && end != null && mileage != null) {
                   // Create a new Entry object using the parsed start time, end time, and mileage
                   Entry temp = Entry(start!, end!, mileage!);
+                  temp.retag(taglist);
                   // Create a new list that includes the new Entry
                   List<Entry> newList = List.from(entryLog.value)..add(temp);
                   // Assign the new list to the ValueNotifier
