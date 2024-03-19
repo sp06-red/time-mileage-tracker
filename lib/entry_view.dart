@@ -15,6 +15,7 @@ class _EntryView extends State<EntryView> {
     DateTime? start;
     DateTime? end;
     int? mileage;
+    List<String> taglist = <String>[];
 
     await showDialog(
       context: context,
@@ -68,6 +69,13 @@ class _EntryView extends State<EntryView> {
                 },
                 decoration: InputDecoration(hintText: "Enter mileage"),
               ),
+              TextField(
+                onChanged: (value) {
+                  String n = value;
+                  taglist = n.split(' ');
+                },
+                decoration: InputDecoration(hintText: "Enter tags (Optional)"),
+              ),
             ],
           ),
           actions: <Widget>[
@@ -83,6 +91,7 @@ class _EntryView extends State<EntryView> {
                 if (start != null && end != null && mileage != null) {
                   // Create a new Entry object using the parsed start time, end time, and mileage
                   Entry temp = Entry(start!, end!, mileage!);
+                  temp.retag(taglist);
                   // Create a new list that includes the new Entry
                   List<Entry> newList = List.from(entryLog.value)..add(temp);
                   // Assign the new list to the ValueNotifier
