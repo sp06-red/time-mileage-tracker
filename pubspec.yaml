@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   geolocator: ^8.0.0
+  permission_handler: ^10.2.0
   flutter:
     sdk: flutter
 

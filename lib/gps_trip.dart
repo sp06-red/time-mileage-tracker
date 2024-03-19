@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'entry.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class GPSTrip {
   late DateTime start;
@@ -8,9 +9,15 @@ class GPSTrip {
   late Position endPosition;
   double totalDistance = 0.0;
 
-  Future<void> startTrip() async {
-    start = DateTime.now();
-    startPosition = await Geolocator.getCurrentPosition();
+  Future<PermissionStatus> startTrip() async {
+    PermissionStatus status = await Permission.location.request();
+    if (status.isGranted) {
+      start = DateTime.now();
+      startPosition = await Geolocator.getCurrentPosition();
+    } else {
+      print('Location permission is not granted');
+    }
+    return status;
   }
 
   Future<void> trackLocation() async {
