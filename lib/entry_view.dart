@@ -13,6 +13,8 @@ class EntryView extends StatefulWidget {
 class _EntryView extends State<EntryView> {
   ValueNotifier<List<Entry>> entryLog = ValueNotifier<List<Entry>>([]);
   GPSTrip gpsTrip = GPSTrip();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Add this line
+
 
   void _AddEntry() async {
     DateTime? start;
@@ -137,9 +139,6 @@ class _EntryView extends State<EntryView> {
               } else {
                 await gpsTrip.trackLocation();
               }
-
-              await gpsTrip.startTrip();
-              await gpsTrip.trackLocation();
             },
             child: Text('Start Trip'),
           ),
