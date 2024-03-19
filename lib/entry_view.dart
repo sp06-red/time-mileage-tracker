@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'entry.dart';
+import 'gps_trip.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -10,6 +12,9 @@ class EntryView extends StatefulWidget {
 
 class _EntryView extends State<EntryView> {
   ValueNotifier<List<Entry>> entryLog = ValueNotifier<List<Entry>>([]);
+  GPSTrip gpsTrip = GPSTrip();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Add this line
+
 
   void _AddEntry() async {
     DateTime? start;
@@ -79,25 +84,49 @@ class _EntryView extends State<EntryView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: ValueListenableBuilder( // Wrap the ListView in a ValueListenableBuilder
-        valueListenable: entryLog, // Listen to changes in entryLog
-        builder: (BuildContext context, List<Entry> value, Widget? child) {
-          return ListView(
-            children: [
-              for (Entry entry in value)
-                ListTile(
-                  leading: Icon(Icons.local_taxi),
-                  title: Text(entry.toString()),
-                ),
-            ],
-          );
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: entryLog,
+              builder: (BuildContext context, List<Entry> value, Widget? child) {
+                return ListView(
+                  children: [
+                    for (Entry entry in value)
+                      ListTile(
+                        leading: Icon(Icons.local_taxi),
+                        title: Text(entry.toString()),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              PermissionStatus status = await gpsTrip.startTrip();
+              if (!status.isGranted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Location permission is not granted')),
+                );
+              } else {
+                await gpsTrip.trackLocation();
+              }
+            },
+            child: Text('Start Trip'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await gpsTrip.endTrip();
+              Entry entry = gpsTrip.getEntry();
+              entryLog.value = List.from(entryLog.value)..add(entry);
+            },
+            child: Text('End Trip'),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _AddEntry,
