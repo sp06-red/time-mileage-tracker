@@ -20,7 +20,7 @@ class GPSTrip {
     PermissionStatus status = await Permission.location.request(); // Requesting location permission
     if (status.isGranted) { // If permission is granted
       start = DateTime.now(); // Set the start time to the current time
-      startPosition = await Geolocator.getCurrentPosition(); // Get the current position
+      startPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high); // Get the current position with high accuracy
     } else { // If permission is not granted
       print('Location permission is not granted'); // Print a message
     }
@@ -30,7 +30,7 @@ class GPSTrip {
   // Method to end the trip
   Future<void> endTrip() async {
     end = DateTime.now(); // Set the end time to the current time
-    endPosition = await Geolocator.getCurrentPosition(); // Get the current position
+    endPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high); // Get the current position with high accuracy
     double distance = Geolocator.distanceBetween( // Calculate the distance between the start and end positions
       startPosition.latitude,
       startPosition.longitude,
