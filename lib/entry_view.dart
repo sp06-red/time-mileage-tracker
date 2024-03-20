@@ -265,7 +265,9 @@ class _EntryView extends State<EntryView> {
               IconButton(
                   icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
                   onPressed: () {
-                    toggleGPSTracking();
+                    setState(() {
+                      toggleGPSTracking();
+                    });
                   }),
               Text(isTracking ? "Stop GPS" : "Start GPS")
             ],

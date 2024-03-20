@@ -73,8 +73,7 @@ class GPSTrip {
 
   // Method to track the location during the trip
   Future<void> trackLocation() async {
-    positionStreamSubscription = Geolocator.getPositionStream().listen((Position position) { // Subscribe to the position stream
-      sleep(const Duration(seconds:3));
+      positionStreamSubscription = Geolocator.getPositionStream().listen((Position position) { // Subscribe to the position stream
       double distance = Geolocator.distanceBetween( // Calculate the distance between the start position and the current position
         startPosition.latitude,
         startPosition.longitude,
