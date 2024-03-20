@@ -15,19 +15,17 @@ class EntryView extends StatefulWidget {
 class _EntryView extends State<EntryView> {
   ValueNotifier<List<Entry>> entryLog = ValueNotifier<List<Entry>>([]);
   GPSTrip gpsTrip = GPSTrip();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Add this line
+  final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>(); // Add this line
   bool isTracking = false;
 
-
   void _AddEntry() async {
-
     DateTime? start;
     DateTime? end;
     int? mileage;
     List<String> taglist = <String>[];
 
-
-    if(isTracking){
+    if (isTracking) {
       return;
     }
 
@@ -40,34 +38,30 @@ class _EntryView extends State<EntryView> {
             children: <Widget>[
               TextButton(
                   onPressed: () {
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date){
-                          start = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      start = date;
+                    });
                   },
                   child: const Text(
                     "Select start time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               TextButton(
                   onPressed: () {
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date){
-                          end = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      end = date;
+                    });
                   },
                   child: const Text(
                     "Select end time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               TextField(
-                onChanged: (value) { mileage = int.parse(value); },
+                onChanged: (value) {
+                  mileage = int.parse(value);
+                },
                 decoration: InputDecoration(hintText: "Enter mileage"),
               ),
               TextField(
@@ -226,22 +220,16 @@ class _EntryView extends State<EntryView> {
         );
       },
     );
-  void startStopGPS() async{
-
-  Future<int> toggleGPSTracking() async{
-  void toggleGPSTracking() async{
-    PermissionStatus status = await gpsTrip.startTrip();
-    if (!status.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Location permission is not granted')),
-      );
-    } else if (isTracking) {
+    j
+  void toggleGPSTracking() async {
+    if (isTracking) {
       isTracking = false;
       await gpsTrip.endTrip();
       Entry entry = gpsTrip.getEntry();
       entryLog.value = List.from(entryLog.value)..add(entry);
     } else {
       isTracking = true;
+      gpsTrip = GPSTrip();
       await gpsTrip.trackLocation();
     }
   }
@@ -272,14 +260,15 @@ class _EntryView extends State<EntryView> {
               },
             ),
           ),
-          IconButton(
-            icon: Icon(
-              isTracking ? Icons.stop : Icons.play_arrow
-            ),
-            tooltip: isTracking ? "Start GPS" : "End GPS",
-            onPressed: () {
-              toggleGPSTracking();
-            }
+          Row(
+            children: [
+              IconButton(
+                  icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+                  onPressed: () {
+                    toggleGPSTracking();
+                  }),
+              Text(isTracking ? "Stop GPS" : "Start GPS")
+            ],
           ),
         ],
       ),
