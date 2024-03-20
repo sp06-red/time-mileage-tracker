@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'entry.dart';
 import 'gps_trip.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -29,13 +30,33 @@ class _EntryView extends State<EntryView> {
           title: Text('Add Entry'),
           content: Column(
             children: <Widget>[
-              TextField(
-                onChanged: (value) { start = DateTime.parse(value); },
-                decoration: InputDecoration(hintText: "Enter start time (yyyy-mm-ddThh:mm)"),
+              TextButton(
+                  onPressed: () {
+                    DatePicker.showDateTimePicker(
+                        context,
+                        showTitleActions: true,
+                        onConfirm: (date){
+                          start = date;
+                        });
+                  },
+                  child: const Text(
+                    "Select start time",
+                    style: TextStyle(color: Colors.blue),
+                  )
               ),
-              TextField(
-                onChanged: (value) { end = DateTime.parse(value); },
-                decoration: InputDecoration(hintText: "Enter end time (yyyy-mm-ddThh:mm)"),
+              TextButton(
+                  onPressed: () {
+                    DatePicker.showDateTimePicker(
+                        context,
+                        showTitleActions: true,
+                        onConfirm: (date){
+                          end = date;
+                        });
+                  },
+                  child: const Text(
+                    "Select end time",
+                    style: TextStyle(color: Colors.blue),
+                  )
               ),
               TextField(
                 onChanged: (value) { mileage = int.parse(value); },
