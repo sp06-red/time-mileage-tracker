@@ -1,3 +1,4 @@
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter/material.dart';
 import 'entry.dart';
 
@@ -21,33 +22,53 @@ class _EntryView extends State<EntryView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Entry'),
+          title: const Text('Add Entry'),
           content: Column(
             children: <Widget>[
-              TextField(
-                onChanged: (value) { start = DateTime.parse(value); },
-                decoration: InputDecoration(hintText: "Enter start time (yyyy-mm-ddThh:mm)"),
+              TextButton(
+                onPressed: () {
+                  DatePicker.showDateTimePicker(
+                      context,
+                      showTitleActions: true,
+                      onChanged: (date){
+                        start = date;
+                      });
+                  },
+                child: const Text(
+                    "Select start time",
+                    style: TextStyle(color: Colors.blue),
+                )
               ),
-              TextField(
-                onChanged: (value) { end = DateTime.parse(value); },
-                decoration: InputDecoration(hintText: "Enter end time (yyyy-mm-ddThh:mm)"),
+              TextButton(
+                  onPressed: () {
+                    DatePicker.showDateTimePicker(
+                        context,
+                        showTitleActions: true,
+                        onChanged: (date){
+                          end = date;
+                        });
+                  },
+                  child: const Text(
+                    "Select end time",
+                    style: TextStyle(color: Colors.blue),
+                  )
               ),
               TextField(
                 onChanged: (value) { mileage = int.parse(value); },
-                decoration: InputDecoration(hintText: "Enter mileage"),
+                decoration: const InputDecoration(hintText: "Enter mileage"),
               ),
               TextField(
                 onChanged: (value) {
                   String n = value;
                   taglist = n.split(' ');
                 },
-                decoration: InputDecoration(hintText: "Enter tags (Optional)"),
+                decoration: const InputDecoration(hintText: "Enter tags (Optional)"),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
