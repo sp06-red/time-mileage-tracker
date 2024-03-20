@@ -20,10 +20,16 @@ class _EntryView extends State<EntryView> {
 
 
   void _AddEntry() async {
+
     DateTime? start;
     DateTime? end;
     int? mileage;
     List<String> taglist = <String>[];
+
+
+    if(isTracking){
+      return;
+    }
 
     await showDialog(
       context: context,
@@ -221,6 +227,8 @@ class _EntryView extends State<EntryView> {
       },
     );
   void startStopGPS() async{
+
+  Future<int> toggleGPSTracking() async{
     PermissionStatus status = await gpsTrip.startTrip();
     if (!status.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -268,8 +276,8 @@ class _EntryView extends State<EntryView> {
               isTracking ? Icons.stop : Icons.play_arrow
             ),
             tooltip: isTracking ? "Start GPS" : "End GPS",
-            onPressed: () async {
-
+            onPressed: () {
+              toggleGPSTracking();
             }
           ),
         ],
