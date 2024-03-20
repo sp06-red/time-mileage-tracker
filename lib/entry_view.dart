@@ -229,6 +229,7 @@ class _EntryView extends State<EntryView> {
   void startStopGPS() async{
 
   Future<int> toggleGPSTracking() async{
+  void toggleGPSTracking() async{
     PermissionStatus status = await gpsTrip.startTrip();
     if (!status.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
