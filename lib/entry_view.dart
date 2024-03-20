@@ -35,7 +35,7 @@ class _EntryView extends State<EntryView> {
                   DatePicker.showDateTimePicker(
                       context,
                       showTitleActions: true,
-                      onChanged: (date){
+                      onConfirm: (date){
                         start = date;
                       });
                   },
@@ -49,7 +49,7 @@ class _EntryView extends State<EntryView> {
                     DatePicker.showDateTimePicker(
                         context,
                         showTitleActions: true,
-                        onChanged: (date){
+                        onConfirm: (date){
                           end = date;
                         });
                   },
