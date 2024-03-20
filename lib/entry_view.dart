@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'entry.dart';
 import 'gps_trip.dart';
@@ -15,6 +16,7 @@ class _EntryView extends State<EntryView> {
   ValueNotifier<List<Entry>> entryLog = ValueNotifier<List<Entry>>([]);
   GPSTrip gpsTrip = GPSTrip();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Add this line
+  bool isTracking = false;
 
 
   void _AddEntry() async {
@@ -218,6 +220,21 @@ class _EntryView extends State<EntryView> {
         );
       },
     );
+  void startStopGPS() async{
+    PermissionStatus status = await gpsTrip.startTrip();
+    if (!status.isGranted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location permission is not granted')),
+      );
+    } else if (isTracking) {
+      isTracking = false;
+      await gpsTrip.endTrip();
+      Entry entry = gpsTrip.getEntry();
+      entryLog.value = List.from(entryLog.value)..add(entry);
+    } else {
+      isTracking = true;
+      await gpsTrip.trackLocation();
+    }
   }
 
   @override
@@ -246,26 +263,14 @@ class _EntryView extends State<EntryView> {
               },
             ),
           ),
-          ElevatedButton(
+          IconButton(
+            icon: Icon(
+              isTracking ? Icons.stop : Icons.play_arrow
+            ),
+            tooltip: isTracking ? "Start GPS" : "End GPS",
             onPressed: () async {
-              PermissionStatus status = await gpsTrip.startTrip();
-              if (!status.isGranted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Location permission is not granted')),
-                );
-              } else {
-                await gpsTrip.trackLocation();
-              }
-            },
-            child: Text('Start Trip'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await gpsTrip.endTrip();
-              Entry entry = gpsTrip.getEntry();
-              entryLog.value = List.from(entryLog.value)..add(entry);
-            },
-            child: Text('End Trip'),
+
+            }
           ),
         ],
       ),
