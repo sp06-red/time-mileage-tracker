@@ -101,6 +101,94 @@ class _EntryView extends State<EntryView> {
     );
   }
 
+  void _EditEntry(Entry entry, int index) async {
+    DateTime? start = entry.start;
+    DateTime? end = entry.end;
+    int? mileage = entry.mileage;
+    List<String> taglist = entry.getTags();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Entry'),
+          content: Column(
+            children: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    DatePicker.showDateTimePicker(
+                        context,
+                        showTitleActions: true,
+                        onConfirm: (date){
+                          start = date;
+                        });
+                  },
+                  child: const Text(
+                    "Select start time",
+                    style: TextStyle(color: Colors.blue),
+                  )
+              ),
+              TextButton(
+                  onPressed: () {
+                    DatePicker.showDateTimePicker(
+                        context,
+                        showTitleActions: true,
+                        onConfirm: (date){
+                          end = date;
+                        });
+                  },
+                  child: const Text(
+                    "Select end time",
+                    style: TextStyle(color: Colors.blue),
+                  )
+              ),
+              TextField(
+                onChanged: (value) { mileage = int.parse(value); },
+                decoration: InputDecoration(hintText: "Enter mileage"),
+              ),
+              TextField(
+                onChanged: (value) {
+                  String n = value;
+                  taglist = n.split(' ');
+                },
+                decoration: InputDecoration(hintText: "Enter tags (Optional)"),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Edit'),
+              onPressed: () {
+                if (start != null && end != null && mileage != null) {
+                  // Update the Entry object with the new values
+                  entry.start = start!;
+                  entry.end = end!;
+                  entry.mileage = mileage!;
+                  entry.retag(taglist);
+
+                  // Create a new list from the existing entryLog.value
+                  List<Entry> newList = List.from(entryLog.value);
+                  // Replace the entry at the given index with the updated entry
+                  newList[index] = entry;
+                  // Assign the new list to entryLog.value
+                  entryLog.value = newList;
+
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,14 +202,15 @@ class _EntryView extends State<EntryView> {
             child: ValueListenableBuilder(
               valueListenable: entryLog,
               builder: (BuildContext context, List<Entry> value, Widget? child) {
-                return ListView(
-                  children: [
-                    for (Entry entry in value)
-                      ListTile(
-                        leading: Icon(Icons.local_taxi),
-                        title: Text(entry.toString()),
-                      ),
-                  ],
+                return ListView.builder(
+                  itemCount: value.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: Icon(Icons.local_taxi),
+                      title: Text(value[index].toString()),
+                      onTap: () => _EditEntry(value[index], index),
+                    );
+                  },
                 );
               },
             ),
