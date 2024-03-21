@@ -110,8 +110,10 @@ class _EntryView extends State<EntryView> {
     List<String> taglist = entry.getTags();
 
     // Create TextEditingController for each TextField
-    TextEditingController mileageController = TextEditingController(text: mileage.toString());
-    TextEditingController tagsController = TextEditingController(text: taglist.join(' '));
+    TextEditingController mileageController = TextEditingController(
+        text: mileage.toString());
+    TextEditingController tagsController = TextEditingController(
+        text: taglist.join(' '));
 
     await showDialog(
       context: context,
@@ -127,7 +129,7 @@ class _EntryView extends State<EntryView> {
                     DatePicker.showDateTimePicker(
                         context,
                         showTitleActions: true,
-                        onConfirm: (date){
+                        onConfirm: (date) {
                           // When a date is selected, update the start time
                           start = date;
                         });
@@ -144,7 +146,7 @@ class _EntryView extends State<EntryView> {
                     DatePicker.showDateTimePicker(
                         context,
                         showTitleActions: true,
-                        onConfirm: (date){
+                        onConfirm: (date) {
                           // When a date is selected, update the end time
                           end = date;
                         });
@@ -220,7 +222,7 @@ class _EntryView extends State<EntryView> {
         );
       },
     );
-    j
+  }
   void toggleGPSTracking() async {
     if (isTracking) {
       isTracking = false;
