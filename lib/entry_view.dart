@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'entry.dart';
 import 'gps_trip.dart';
@@ -14,14 +15,19 @@ class EntryView extends StatefulWidget {
 class _EntryView extends State<EntryView> {
   ValueNotifier<List<Entry>> entryLog = ValueNotifier<List<Entry>>([]);
   GPSTrip gpsTrip = GPSTrip();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Add this line
-
+  final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>(); // Add this line
+  bool isTracking = false;
 
   void _AddEntry() async {
     DateTime? start;
     DateTime? end;
     int? mileage;
     List<String> taglist = <String>[];
+
+    if (isTracking) {
+      return;
+    }
 
     await showDialog(
       context: context,
@@ -32,34 +38,30 @@ class _EntryView extends State<EntryView> {
             children: <Widget>[
               TextButton(
                   onPressed: () {
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date){
-                          start = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      start = date;
+                    });
                   },
                   child: const Text(
                     "Select start time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               TextButton(
                   onPressed: () {
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date){
-                          end = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      end = date;
+                    });
                   },
                   child: const Text(
                     "Select end time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               TextField(
-                onChanged: (value) { mileage = int.parse(value); },
+                onChanged: (value) {
+                  mileage = int.parse(value);
+                },
                 decoration: InputDecoration(hintText: "Enter mileage"),
               ),
               TextField(
@@ -218,6 +220,18 @@ class _EntryView extends State<EntryView> {
         );
       },
     );
+    j
+  void toggleGPSTracking() async {
+    if (isTracking) {
+      isTracking = false;
+      await gpsTrip.endTrip();
+      Entry entry = gpsTrip.getEntry();
+      entryLog.value = List.from(entryLog.value)..add(entry);
+    } else {
+      isTracking = true;
+      gpsTrip = GPSTrip();
+      await gpsTrip.trackLocation();
+    }
   }
 
   @override
@@ -246,26 +260,17 @@ class _EntryView extends State<EntryView> {
               },
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              PermissionStatus status = await gpsTrip.startTrip();
-              if (!status.isGranted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Location permission is not granted')),
-                );
-              } else {
-                await gpsTrip.trackLocation();
-              }
-            },
-            child: Text('Start Trip'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await gpsTrip.endTrip();
-              Entry entry = gpsTrip.getEntry();
-              entryLog.value = List.from(entryLog.value)..add(entry);
-            },
-            child: Text('End Trip'),
+          Row(
+            children: [
+              IconButton(
+                  icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+                  onPressed: () {
+                    setState(() {
+                      toggleGPSTracking();
+                    });
+                  }),
+              Text(isTracking ? "Stop GPS" : "Start GPS")
+            ],
           ),
         ],
       ),
