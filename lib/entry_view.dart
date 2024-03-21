@@ -206,6 +206,7 @@ class _EntryView extends State<EntryView> {
                   entry.end = end!;
                   entry.mileage = mileage!;
                   entry.retag(taglist);
+                  entry.duration = entry.end.difference(entry.start);
 
                   // Create a new list from the existing entryLog.value
                   List<Entry> newList = List.from(entryLog.value);
