@@ -107,6 +107,10 @@ class _EntryView extends State<EntryView> {
     int? mileage = entry.mileage;
     List<String> taglist = entry.getTags();
 
+    // Create TextEditingController for each TextField
+    TextEditingController mileageController = TextEditingController(text: mileage.toString());
+    TextEditingController tagsController = TextEditingController(text: taglist.join(' '));
+
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -114,12 +118,15 @@ class _EntryView extends State<EntryView> {
           title: Text('Edit Entry'),
           content: Column(
             children: <Widget>[
+              // Button for selecting the start time
               TextButton(
                   onPressed: () {
+                    // Show a date time picker when the button is pressed
                     DatePicker.showDateTimePicker(
                         context,
                         showTitleActions: true,
                         onConfirm: (date){
+                          // When a date is selected, update the start time
                           start = date;
                         });
                   },
@@ -128,12 +135,15 @@ class _EntryView extends State<EntryView> {
                     style: TextStyle(color: Colors.blue),
                   )
               ),
+              // Button for selecting the end time
               TextButton(
                   onPressed: () {
+                    // Show a date time picker when the button is pressed
                     DatePicker.showDateTimePicker(
                         context,
                         showTitleActions: true,
                         onConfirm: (date){
+                          // When a date is selected, update the end time
                           end = date;
                         });
                   },
@@ -142,12 +152,20 @@ class _EntryView extends State<EntryView> {
                     style: TextStyle(color: Colors.blue),
                   )
               ),
+              // TextField for entering the mileage
               TextField(
-                onChanged: (value) { mileage = int.parse(value); },
+                controller: mileageController, // Set the controller
+                onChanged: (value) {
+                  // When the text changes, update the mileage
+                  mileage = int.parse(value);
+                },
                 decoration: InputDecoration(hintText: "Enter mileage"),
               ),
+              // TextField for entering the tags
               TextField(
+                controller: tagsController, // Set the controller
                 onChanged: (value) {
+                  // When the text changes, update the tags
                   String n = value;
                   taglist = n.split(' ');
                 },
@@ -159,6 +177,19 @@ class _EntryView extends State<EntryView> {
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () {
+                // Create a new list from the existing entryLog.value
+                List<Entry> newList = List.from(entryLog.value);
+                // Remove the entry at the given index
+                newList.removeAt(index);
+                // Assign the new list to entryLog.value
+                entryLog.value = newList;
+
                 Navigator.of(context).pop();
               },
             ),
