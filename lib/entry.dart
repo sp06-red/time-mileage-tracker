@@ -1,13 +1,22 @@
 
 class Entry{
-  DateTime start;
-  DateTime end;
-  Duration ?duration;
-  int mileage;
-  List<String> tags = <String>[];
+  late DateTime start;
+  late DateTime end;
+  late Duration ?duration;
+  late int mileage;
+  late List<String> tags = <String>[];
 
   Entry(this.start, this.end, this.mileage){
     duration = end.difference(start);
+  }
+
+  Entry.fromCSV(String csv){
+    List<String> parts = csv.split(',');
+    start = DateTime.parse(parts[0]);
+    end = DateTime.parse(parts[1]);
+    duration = end.difference(start);
+    mileage = int.parse(parts[2]);
+    tags = parts[3].split('.');
   }
 
   String toString(){
@@ -34,4 +43,7 @@ class Entry{
     return tags;
   }
 
+  String toCSV(){
+    return "${start.toIso8601String()},${end.toIso8601String()},$mileage,${tags.join(".")}";
+  }
 }
