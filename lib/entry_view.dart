@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'entry.dart';
+import 'package:time_mileage_tracker/entry.dart';
 import 'gps_trip.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'entry_list_manager.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -13,10 +14,8 @@ class EntryView extends StatefulWidget {
 }
 
 class _EntryView extends State<EntryView> {
-  ValueNotifier<List<Entry>> entryLog = ValueNotifier<List<Entry>>([]);
+  EntryListManager listManager = EntryListManager();
   GPSTrip gpsTrip = GPSTrip();
-  final GlobalKey<ScaffoldState> _scaffoldKey =
-      GlobalKey<ScaffoldState>(); // Add this line
   bool isTracking = false;
 
   void _AddEntry() async {
@@ -87,12 +86,7 @@ class _EntryView extends State<EntryView> {
                   // Create a new Entry object using the parsed start time, end time, and mileage
                   Entry temp = Entry(start!, end!, mileage!);
                   temp.retag(taglist);
-                  // Create a new list that includes the new Entry
-                  List<Entry> newList = List.from(entryLog.value)..add(temp);
-                  // Assign the new list to the ValueNotifier
-                  entryLog.value = newList;
-                  // Print the entryLog to the console for debugging
-                  print(entryLog.value);
+                  listManager.addEntry(temp);
                   Navigator.of(context).pop();
                 }
               },
@@ -110,10 +104,10 @@ class _EntryView extends State<EntryView> {
     List<String> taglist = entry.getTags();
 
     // Create TextEditingController for each TextField
-    TextEditingController mileageController = TextEditingController(
-        text: mileage.toString());
-    TextEditingController tagsController = TextEditingController(
-        text: taglist.join(' '));
+    TextEditingController mileageController =
+        TextEditingController(text: mileage.toString());
+    TextEditingController tagsController =
+        TextEditingController(text: taglist.join(' '));
 
     await showDialog(
       context: context,
@@ -126,36 +120,30 @@ class _EntryView extends State<EntryView> {
               TextButton(
                   onPressed: () {
                     // Show a date time picker when the button is pressed
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date) {
-                          // When a date is selected, update the start time
-                          start = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      // When a date is selected, update the start time
+                      start = date;
+                    });
                   },
                   child: const Text(
                     "Select start time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               // Button for selecting the end time
               TextButton(
                   onPressed: () {
                     // Show a date time picker when the button is pressed
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date) {
-                          // When a date is selected, update the end time
-                          end = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      // When a date is selected, update the end time
+                      end = date;
+                    });
                   },
                   child: const Text(
                     "Select end time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               // TextField for entering the mileage
               TextField(
                 controller: mileageController, // Set the controller
@@ -187,13 +175,6 @@ class _EntryView extends State<EntryView> {
             TextButton(
               child: Text('Delete'),
               onPressed: () {
-                // Create a new list from the existing entryLog.value
-                List<Entry> newList = List.from(entryLog.value);
-                // Remove the entry at the given index
-                newList.removeAt(index);
-                // Assign the new list to entryLog.value
-                entryLog.value = newList;
-
                 Navigator.of(context).pop();
               },
             ),
@@ -207,13 +188,7 @@ class _EntryView extends State<EntryView> {
                   entry.mileage = mileage!;
                   entry.retag(taglist);
                   entry.duration = entry.end.difference(entry.start);
-
-                  // Create a new list from the existing entryLog.value
-                  List<Entry> newList = List.from(entryLog.value);
-                  // Replace the entry at the given index with the updated entry
-                  newList[index] = entry;
-                  // Assign the new list to entryLog.value
-                  entryLog.value = newList;
+                  listManager.addEntry(entry);
 
                   Navigator.of(context).pop();
                 }
@@ -224,12 +199,12 @@ class _EntryView extends State<EntryView> {
       },
     );
   }
-  void toggleGPSTracking() async {
+
+  void _toggleGPSTracking() async {
     if (isTracking) {
       isTracking = false;
       await gpsTrip.endTrip();
-      Entry entry = gpsTrip.getEntry();
-      entryLog.value = List.from(entryLog.value)..add(entry);
+      listManager.addEntry(gpsTrip.getEntry());
     } else {
       isTracking = true;
       gpsTrip = GPSTrip();
@@ -244,44 +219,37 @@ class _EntryView extends State<EntryView> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Column(
+      body: ListView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: listManager.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: const Icon(Icons.local_taxi),
+            title: Text(listManager.at(index).toString()),
+            onTap: () => _EditEntry(listManager.at(index), index),
+          );
+        },
+      ),
+      bottomNavigationBar: BottomAppBar(
+          child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: entryLog,
-              builder: (BuildContext context, List<Entry> value, Widget? child) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: Icon(Icons.local_taxi),
-                      title: Text(value[index].toString()),
-                      onTap: () => _EditEntry(value[index], index),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                  icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
-                  onPressed: () {
-                    setState(() {
-                      toggleGPSTracking();
-                    });
-                  }),
-              Text(isTracking ? "Stop GPS" : "Start GPS")
-            ],
-          ),
+          IconButton(
+              icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+              onPressed: () {
+                setState(() {
+                  _toggleGPSTracking();
+                });
+              }),
+          IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                setState(() {
+                  _AddEntry();
+                });
+              })
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _AddEntry,
-        tooltip: 'Add Entry',
-        child: const Icon(Icons.add),
-      ),
+      )),
     );
   }
 }
