@@ -5,7 +5,9 @@ class EntryListManager{
   List<Entry> entryList = <Entry>[];
   StorageManager man = StorageManager();
 
-  EntryListManager();
+  EntryListManager(){
+    load();
+  }
 
   void addEntry(Entry e){
     entryList.add(e);
