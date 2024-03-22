@@ -33,6 +33,7 @@ class _EntryView extends State<EntryView> {
         return AlertDialog(
           title: const Text('Add Entry'),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextButton(
                   onPressed: () {
@@ -115,6 +116,7 @@ class _EntryView extends State<EntryView> {
         return AlertDialog(
           title: const Text('Edit Entry'),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               // Button for selecting the start time
               TextButton(
@@ -255,9 +257,8 @@ class _EntryView extends State<EntryView> {
                 child: IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () {
-                      setState(() {
-                        _addEntry();
-                      });
+                      _addEntry();
+                      setState(() { /* Contents of entry list changed */ });
                     }),
               ),
               Card(
@@ -267,6 +268,13 @@ class _EntryView extends State<EntryView> {
                       setState(() {
                         listManager.wipe();
                       });},
+                  )
+              ),
+              Card(
+                  child: IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: (){
+                      setState(() {});},
                   )
               )
             ],
