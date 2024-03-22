@@ -236,39 +236,38 @@ class _EntryView extends State<EntryView> {
         },
       ),
       bottomNavigationBar: BottomAppBar(
-          child: Container(
-        child: Row(
-          children: [
-            Card(
-              child: IconButton(
-                  icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
-                  onPressed: () {
-                    setState(() {
-                      _toggleGPSTracking();
-                    });
-                  }),
-            ),
-            Card(
-              child: IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    setState(() {
-                      _addEntry();
-                    });
-                  }),
-            ),
-            Card(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Card(
                 child: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: (){
-                    setState(() {
-                      listManager.wipe();
-                    });},
-                )
-            )
-          ],
-        ),
-      )),
+                    icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+                    onPressed: () {
+                      setState(() {
+                        _toggleGPSTracking();
+                      });
+                    }),
+              ),
+              Card(
+                child: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      setState(() {
+                        _addEntry();
+                      });
+                    }),
+              ),
+              Card(
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: (){
+                      setState(() {
+                        listManager.wipe();
+                      });},
+                  )
+              )
+            ],
+          )),
     );
   }
 }
