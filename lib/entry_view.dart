@@ -221,16 +221,20 @@ class _EntryView extends State<EntryView> {
         scrollDirection: Axis.vertical,
         itemCount: listManager.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            leading: const Icon(Icons.local_taxi),
-            title: Text(listManager.at(index).toString()),
-            onTap: () => _editEntry(listManager.at(index), index),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 3),
+            child: Card(
+              child: ListTile(
+                leading: const Icon(Icons.local_taxi),
+                title: Text(listManager.at(index).toString()),
+                onTap: () => _editEntry(listManager.at(index), index),
+              ),
+            ),
           );
         },
       ),
       bottomNavigationBar: BottomAppBar(
           child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
               icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),

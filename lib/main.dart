@@ -14,10 +14,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const EntryView(title: 'SP06-Red Time Mileage Tracker'),
+      home: const EntryView(title: 'SP06 Red - Time Mileage Tracker'),
     );
   }
 }
