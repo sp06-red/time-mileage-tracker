@@ -11,6 +11,7 @@ class EntryListManager with ChangeNotifier{
   }
   void wipe(){
     entryList = <Entry>[];
+    _save();
     notifyListeners();
   }
   void addEntry(Entry e){
@@ -52,5 +53,6 @@ class EntryListManager with ChangeNotifier{
 
   void _load() async{
     entryList = await man.readEntries();
+    notifyListeners();
   }
 }
