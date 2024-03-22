@@ -16,6 +16,7 @@ class _EntryView extends State<EntryView> {
   GPSTrip gpsTrip = GPSTrip();
   bool isTracking = false;
 
+
   void _addEntry() async {
     DateTime? start;
     DateTime? end;
@@ -175,6 +176,7 @@ class _EntryView extends State<EntryView> {
             TextButton(
               child: const Text('Delete'),
               onPressed: () {
+                listManager.removeEntry(entry.hashCode);
                 Navigator.of(context).pop();
               },
             ),
@@ -183,6 +185,7 @@ class _EntryView extends State<EntryView> {
               onPressed: () {
                 if (start != null && end != null && mileage != null) {
                   // Update the Entry object with the new values
+                  listManager.removeEntry(entry.hashCode);
                   entry.start = start!;
                   entry.end = end!;
                   entry.mileage = mileage!;
