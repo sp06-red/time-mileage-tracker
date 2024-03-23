@@ -88,6 +88,7 @@ class _EntryView extends State<EntryView> {
                   Entry temp = Entry(start!, end!, mileage!);
                   temp.retag(tagList);
                   listManager.addEntry(temp);
+                  setState(() { /* Contents of entry list changed */ });
                   Navigator.of(context).pop();
                 }
               },
@@ -194,7 +195,7 @@ class _EntryView extends State<EntryView> {
                   entry.retag(tagList);
                   entry.duration = entry.end.difference(entry.start);
                   listManager.addEntry(entry);
-
+                  setState(() { /* Contents of entry list changed */ });
                   Navigator.of(context).pop();
                 }
               },
@@ -258,7 +259,6 @@ class _EntryView extends State<EntryView> {
                     icon: const Icon(Icons.add),
                     onPressed: () {
                       _addEntry();
-                      setState(() { /* Contents of entry list changed */ });
                     }),
               ),
               Card(
@@ -269,16 +269,9 @@ class _EntryView extends State<EntryView> {
                         listManager.wipe();
                       });},
                   )
-              ),
-              Card(
-                  child: IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: (){
-                      setState(() {});},
-                  )
-              )
             ],
-          )),
+          )
+      ),
     );
   }
 }
