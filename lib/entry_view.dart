@@ -1,9 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'entry.dart';
+import 'package:time_mileage_tracker/entry.dart';
 import 'gps_trip.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'entry_list_manager.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -13,17 +12,27 @@ class EntryView extends StatefulWidget {
 }
 
 class _EntryView extends State<EntryView> {
-  ValueNotifier<List<Entry>> entryLog = ValueNotifier<List<Entry>>([]);
+  EntryListManager listManager = EntryListManager();
   GPSTrip gpsTrip = GPSTrip();
-  final GlobalKey<ScaffoldState> _scaffoldKey =
-      GlobalKey<ScaffoldState>(); // Add this line
   bool isTracking = false;
 
-  void _AddEntry() async {
+  @override
+  void initState(){
+    super.initState();
+    setup();
+  }
+
+  Future<void> setup() async {
+    listManager = EntryListManager();
+    await Future.delayed(Duration(milliseconds:333));
+    setState(() {});
+  }
+
+  void _addEntry() async {
     DateTime? start;
     DateTime? end;
     int? mileage;
-    List<String> taglist = <String>[];
+    List<String> tagList = <String>[];
 
     if (isTracking) {
       return;
@@ -33,8 +42,9 @@ class _EntryView extends State<EntryView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Entry'),
+          title: const Text('Add Entry'),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextButton(
                   onPressed: () {
@@ -62,37 +72,34 @@ class _EntryView extends State<EntryView> {
                 onChanged: (value) {
                   mileage = int.parse(value);
                 },
-                decoration: InputDecoration(hintText: "Enter mileage"),
+                decoration: const InputDecoration(hintText: "Enter mileage"),
               ),
               TextField(
                 onChanged: (value) {
                   String n = value;
-                  taglist = n.split(' ');
+                  tagList = n.split(' ');
                 },
-                decoration: InputDecoration(hintText: "Enter tags (Optional)"),
+                decoration:
+                    const InputDecoration(hintText: "Enter tags (Optional)"),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Add'),
+              child: const Text('Add'),
               onPressed: () {
                 if (start != null && end != null && mileage != null) {
                   // Create a new Entry object using the parsed start time, end time, and mileage
                   Entry temp = Entry(start!, end!, mileage!);
-                  temp.retag(taglist);
-                  // Create a new list that includes the new Entry
-                  List<Entry> newList = List.from(entryLog.value)..add(temp);
-                  // Assign the new list to the ValueNotifier
-                  entryLog.value = newList;
-                  // Print the entryLog to the console for debugging
-                  print(entryLog.value);
+                  temp.retag(tagList);
+                  listManager.addEntry(temp);
+                  setState(() { /* Contents of entry list changed */ });
                   Navigator.of(context).pop();
                 }
               },
@@ -103,59 +110,54 @@ class _EntryView extends State<EntryView> {
     );
   }
 
-  void _EditEntry(Entry entry, int index) async {
+  void _editEntry(Entry entry, int index) async {
     DateTime? start = entry.start;
     DateTime? end = entry.end;
     int? mileage = entry.mileage;
-    List<String> taglist = entry.getTags();
+    List<String> tagList = entry.getTags();
 
     // Create TextEditingController for each TextField
-    TextEditingController mileageController = TextEditingController(
-        text: mileage.toString());
-    TextEditingController tagsController = TextEditingController(
-        text: taglist.join(' '));
+    TextEditingController mileageController =
+        TextEditingController(text: mileage.toString());
+    TextEditingController tagsController =
+        TextEditingController(text: tagList.join(' '));
 
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Entry'),
+          title: const Text('Edit Entry'),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               // Button for selecting the start time
               TextButton(
                   onPressed: () {
                     // Show a date time picker when the button is pressed
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date) {
-                          // When a date is selected, update the start time
-                          start = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      // When a date is selected, update the start time
+                      start = date;
+                    });
                   },
                   child: const Text(
                     "Select start time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               // Button for selecting the end time
               TextButton(
                   onPressed: () {
                     // Show a date time picker when the button is pressed
-                    DatePicker.showDateTimePicker(
-                        context,
-                        showTitleActions: true,
-                        onConfirm: (date) {
-                          // When a date is selected, update the end time
-                          end = date;
-                        });
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true, onConfirm: (date) {
+                      // When a date is selected, update the end time
+                      end = date;
+                    });
                   },
                   child: const Text(
                     "Select end time",
                     style: TextStyle(color: Colors.blue),
-                  )
-              ),
+                  )),
               // TextField for entering the mileage
               TextField(
                 controller: mileageController, // Set the controller
@@ -163,7 +165,7 @@ class _EntryView extends State<EntryView> {
                   // When the text changes, update the mileage
                   mileage = int.parse(value);
                 },
-                decoration: InputDecoration(hintText: "Enter mileage"),
+                decoration: const InputDecoration(hintText: "Enter mileage"),
               ),
               // TextField for entering the tags
               TextField(
@@ -171,50 +173,40 @@ class _EntryView extends State<EntryView> {
                 onChanged: (value) {
                   // When the text changes, update the tags
                   String n = value;
-                  taglist = n.split(' ');
+                  tagList = n.split(' ');
                 },
-                decoration: InputDecoration(hintText: "Enter tags (Optional)"),
+                decoration:
+                    const InputDecoration(hintText: "Enter tags (Optional)"),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: const Text('Delete'),
               onPressed: () {
-                // Create a new list from the existing entryLog.value
-                List<Entry> newList = List.from(entryLog.value);
-                // Remove the entry at the given index
-                newList.removeAt(index);
-                // Assign the new list to entryLog.value
-                entryLog.value = newList;
-
+                listManager.removeEntry(entry.hashCode);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Edit'),
+              child: const Text('Edit'),
               onPressed: () {
                 if (start != null && end != null && mileage != null) {
                   // Update the Entry object with the new values
+                  listManager.removeEntry(entry.hashCode);
                   entry.start = start!;
                   entry.end = end!;
                   entry.mileage = mileage!;
-                  entry.retag(taglist);
+                  entry.retag(tagList);
                   entry.duration = entry.end.difference(entry.start);
-
-                  // Create a new list from the existing entryLog.value
-                  List<Entry> newList = List.from(entryLog.value);
-                  // Replace the entry at the given index with the updated entry
-                  newList[index] = entry;
-                  // Assign the new list to entryLog.value
-                  entryLog.value = newList;
-
+                  listManager.addEntry(entry);
+                  setState(() { /* Contents of entry list changed */ });
                   Navigator.of(context).pop();
                 }
               },
@@ -224,12 +216,12 @@ class _EntryView extends State<EntryView> {
       },
     );
   }
-  void toggleGPSTracking() async {
+
+  void _toggleGPSTracking() async {
     if (isTracking) {
       isTracking = false;
       await gpsTrip.endTrip();
-      Entry entry = gpsTrip.getEntry();
-      entryLog.value = List.from(entryLog.value)..add(entry);
+      listManager.addEntry(gpsTrip.getEntry());
     } else {
       isTracking = true;
       gpsTrip = GPSTrip();
@@ -239,48 +231,59 @@ class _EntryView extends State<EntryView> {
 
   @override
   Widget build(BuildContext context) {
+    setState(() {});
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: entryLog,
-              builder: (BuildContext context, List<Entry> value, Widget? child) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: Icon(Icons.local_taxi),
-                      title: Text(value[index].toString()),
-                      onTap: () => _EditEntry(value[index], index),
-                    );
-                  },
-                );
-              },
+      body: ListView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: listManager.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 3),
+            child: Card(
+              child: ListTile(
+                leading: const Icon(Icons.local_taxi),
+                title: Text(listManager.at(index).toString()),
+                onTap: () => _editEntry(listManager.at(index), index),
+              ),
             ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                  icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
-                  onPressed: () {
-                    setState(() {
-                      toggleGPSTracking();
-                    });
-                  }),
-              Text(isTracking ? "Stop GPS" : "Start GPS")
-            ],
-          ),
-        ],
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _AddEntry,
-        tooltip: 'Add Entry',
-        child: const Icon(Icons.add),
+      bottomNavigationBar: BottomAppBar(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Card(
+                child: IconButton(
+                    icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+                    onPressed: () {
+                      setState(() {
+                        _toggleGPSTracking();
+                      });
+                    }),
+              ),
+              Card(
+                child: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      _addEntry();
+                    }),
+              ),
+              Card(
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: (){
+                      setState(() {
+                        listManager.wipe();
+                      });},
+                  )
+              )
+            ],
+          )
       ),
     );
   }
