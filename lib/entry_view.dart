@@ -16,6 +16,17 @@ class _EntryView extends State<EntryView> {
   GPSTrip gpsTrip = GPSTrip();
   bool isTracking = false;
 
+  @override
+  void initState(){
+    super.initState();
+    setup();
+  }
+
+  Future<void> setup() async {
+    listManager = EntryListManager();
+    await Future.delayed(Duration(milliseconds:333));
+    setState(() {});
+  }
 
   void _addEntry() async {
     DateTime? start;
@@ -220,6 +231,7 @@ class _EntryView extends State<EntryView> {
 
   @override
   Widget build(BuildContext context) {
+    setState(() {});
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -269,6 +281,7 @@ class _EntryView extends State<EntryView> {
                         listManager.wipe();
                       });},
                   )
+              )
             ],
           )
       ),
