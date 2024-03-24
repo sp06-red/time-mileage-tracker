@@ -20,7 +20,7 @@ class Entry{
   }
 
   String _formatDate(DateTime date){
-    return "${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute}";
+    return "${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
   }
 
   @override
