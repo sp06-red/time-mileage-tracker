@@ -19,12 +19,27 @@ class Entry{
     tags = parts[3].split('.');
   }
 
+  String _formatDate(DateTime date){
+    return "${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute}";
+  }
   String toString(){
     String out = "";
-    out += "Start: ${start.month}-${start.day}-${start.year} ${start.hour}:${start.minute}\n";
-    out += "Duration: ${(duration?.inSeconds)!/60}\n";
-    out += "Distance: $mileage\n";
-    out += tags.toString();
+    String startStr = _formatDate(start);
+    String endStr = _formatDate(end);
+    out += "$startStr to $endStr\n";
+    String h = (duration!.inHours%24).toString().padLeft(2, '0');
+    String m = (duration!.inMinutes%60).toString().padLeft(2, '0');
+    String s = (duration!.inSeconds%60).toString().padLeft(2, '0');
+    out += "Duration: $h:$m:$s\n";
+    out += "Distance: $mileage";
+    if(tags.first.isNotEmpty){
+      out+="\n";
+      for(String tag in tags){
+        if(tag.isNotEmpty){
+          out += "+$tag ";
+        }
+      }
+    }
     return out;
   }
 
