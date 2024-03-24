@@ -22,6 +22,8 @@ class Entry{
   String _formatDate(DateTime date){
     return "${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute}";
   }
+
+  @override
   String toString(){
     String out = "";
     String startStr = _formatDate(start);
@@ -32,13 +34,15 @@ class Entry{
     String s = (duration!.inSeconds%60).toString().padLeft(2, '0');
     out += "Duration: $h:$m:$s\n";
     out += "Distance: $mileage";
-    if(tags.first.isNotEmpty){
-      out+="\n";
-      for(String tag in tags){
-        if(tag.isNotEmpty){
+    try {
+      if (tags.first.isNotEmpty) {
+        out += "\n";
+        for (String tag in tags) {
           out += "+$tag ";
         }
       }
+    } catch (e){
+      print("No tags");
     }
     return out;
   }
