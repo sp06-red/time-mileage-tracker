@@ -190,6 +190,7 @@ class _EntryView extends State<EntryView> {
               child: const Text('Delete'),
               onPressed: () {
                 listManager.removeEntry(entry.hashCode);
+                setState(() {});
                 Navigator.of(context).pop();
               },
             ),
