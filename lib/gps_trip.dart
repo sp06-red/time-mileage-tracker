@@ -53,7 +53,7 @@ class GPSTrip {
   void startTrip() async {
     start = DateTime.now();
     permissionCheck();
-    last = (await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high))!;
+    last = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     await _trackLocation();
   }
 
@@ -86,6 +86,6 @@ class GPSTrip {
 
   // Method to get an Entry object for the trip
   Entry getEntry() {
-    return Entry(start, end, totalDistance.toInt()); // Create an Entry object with the start time, end time, and total distance
+    return Entry(start, end, totalDistance); // Create an Entry object with the start time, end time, and total distance
   }
 }
