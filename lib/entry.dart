@@ -42,7 +42,7 @@ class Entry{
       out.write(time[2] < 10 ? time[2] : _padTime(time[2]));
       out.write("s");
     }
-    out.write(" | Distance: ${mileage}");
+    out.write(" | Distance: ${mileage.toStringAsFixed(2)}");
       try {
         if (tags.first.isNotEmpty) {
           out.write("\n");
@@ -73,6 +73,6 @@ class Entry{
   }
 
   String toCSV(){
-    return "${start.toIso8601String()},${end.toIso8601String()},$mileage,${tags.join(".")}";
+    return "${start.toIso8601String()},${end.toIso8601String()},${mileage.toStringAsFixed(2)},${tags.join(".")}";
   }
 }
