@@ -23,16 +23,21 @@ class Entry{
     return "${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
   }
 
+  String _padTime(int n){
+    return n.toString().padLeft(2, '0');
+  }
+
   @override
   String toString(){
     String out = "";
-    String startStr = _formatDate(start);
-    String endStr = _formatDate(end);
-    out += "$startStr to $endStr\n";
-    String h = (duration!.inHours%24).toString().padLeft(2, '0');
-    String m = (duration!.inMinutes%60).toString().padLeft(2, '0');
-    String s = (duration!.inSeconds%60).toString().padLeft(2, '0');
-    out += "Duration: $h:$m:$s\n";
+    out += "${_formatDate(start)} to ${_formatDate(end)}\n";
+    int h = (duration!.inHours%24);
+    int m = (duration!.inMinutes%60);
+    String s = (duration!.inSeconds%60).toString();
+    String s = "";
+    if (seconds >= 10) s = seconds.toString().padLeft(2,'0');
+    else s = seconds.toString();
+    out += "Duration: ${(h == 0) ? (m == "00" ? "$s\s" : "$m:$s") : "$h:$m:$s"}\n";
     out += "Distance: $mileage";
     try {
       if (tags.first.isNotEmpty) {
