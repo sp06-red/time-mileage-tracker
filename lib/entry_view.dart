@@ -114,7 +114,7 @@ class _EntryView extends State<EntryView> {
     DateTime? start = entry.start;
     DateTime? end = entry.end;
     int? mileage = entry.mileage;
-    List<String> tagList = entry.getTags();
+    List<String> tagList = entry.tagList;
 
     // Create TextEditingController for each TextField
     TextEditingController mileageController =
