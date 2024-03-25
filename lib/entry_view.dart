@@ -117,7 +117,7 @@ class _EntryView extends State<EntryView> {
 
     // Create TextEditingController for each TextField
     TextEditingController mileageController =
-        TextEditingController(text: mileage.toString());
+        TextEditingController(text: mileage.toStringAsFixed(2));
     TextEditingController tagsController =
         TextEditingController(text: tagList.join(' '));
 
