@@ -4,7 +4,7 @@ class Entry{
   late DateTime start;
   late DateTime end;
   late Duration ?duration;
-  late int mileage;
+  late double mileage;
   late List<String> tags = <String>[];
 
   Entry(this.start, this.end, this.mileage){
@@ -16,7 +16,7 @@ class Entry{
     start = DateTime.parse(parts[0]);
     end = DateTime.parse(parts[1]);
     duration = end.difference(start);
-    mileage = int.parse(parts[2]);
+    mileage = double.parse(parts[2]);
     tags = parts[3].split('.');
   }
 
@@ -42,7 +42,7 @@ class Entry{
       out.write(time[2] < 10 ? time[2] : _padTime(time[2]));
       out.write("s");
     }
-    out.write(" | Distance: $mileage");
+    out.write(" | Distance: ${mileage.toStringAsFixed(2)}");
       try {
         if (tags.first.isNotEmpty) {
           out.write("\n");
@@ -73,6 +73,6 @@ class Entry{
   }
 
   String toCSV(){
-    return "${start.toIso8601String()},${end.toIso8601String()},$mileage,${tags.join(".")}";
+    return "${start.toIso8601String()},${end.toIso8601String()},${mileage.toStringAsFixed(2)},${tags.join(".")}";
   }
 }

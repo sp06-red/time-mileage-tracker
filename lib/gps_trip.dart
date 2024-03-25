@@ -1,36 +1,30 @@
-// Importing necessary packages
-import 'dart:io';
-
 import 'package:geolocator/geolocator.dart'; // For geolocation features
 import 'entry.dart'; // For the Entry class
-import 'package:permission_handler/permission_handler.dart'; // For permission handling
 import 'dart:async'; // For asynchronous programming
-import 'package:flutter/material.dart'; // For Flutter's Material Design widgets
 
 // Defining the GPSTrip class
 class GPSTrip {
   // Declaring variables
   late DateTime start; // Start time of the trip
   late DateTime end; // End time of the trip
-  late Position startPosition; // Start position of the trip
-  late Position endPosition; // End position of the trip
+  late Position last; // Start position of the trip
   double totalDistance = 0.0; // Total distance of the trip
   StreamSubscription<Position>? positionStreamSubscription; // Subscription to the position stream
 
-  GPSTrip(){
-    start = DateTime.now();
-    startTrip();
-  }
+  final LocationSettings locationSettings = AndroidSettings(
+    accuracy: LocationAccuracy.high,
+    distanceFilter: 5,
+      /*foregroundNotificationConfig: const ForegroundNotificationConfig(
+        notificationText:
+        "Example app will continue to receive your location even when you aren't using it",
+        notificationTitle: "Running in Background",
+        enableWakeLock: true,
+      )*/
+  );
 
-  Future<bool> getPermissionStatus() async {
-    LocationPermission status = await Geolocator.checkPermission();
-    if (status == LocationPermission.denied){
-      return false;
-    } else {
-      return true;
-    }
-  }
-  Future<Position> _determinePosition() async {
+  GPSTrip();
+
+  Future<void> permissionCheck() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -53,15 +47,14 @@ class GPSTrip {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
   }
-
 
   // Method to start the trip
   void startTrip() async {
     start = DateTime.now();
-    startPosition = await _determinePosition(); // Get the current position with high accuracy
+    permissionCheck();
+    last = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    await _trackLocation();
   }
 
   // Method to end the trip
@@ -72,23 +65,27 @@ class GPSTrip {
   }
 
   // Method to track the location during the trip
-  Future<void> trackLocation() async {
-      positionStreamSubscription = Geolocator.getPositionStream().listen((Position position) { // Subscribe to the position stream
-      double distance = Geolocator.distanceBetween( // Calculate the distance between the start position and the current position
-        startPosition.latitude,
-        startPosition.longitude,
-        position.latitude,
-        position.longitude,
-      );
-      totalDistance += distance; // Add the distance to the total distance
-      startPosition = position; // Update the start position to the current position
-      print('Current location: $position'); // Print the current location
-      print('Current distance: $totalDistance'); // Print the current distance
+  Future<void> _trackLocation() async {
+      positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position current) { // Subscribe to the position stream
+        try{
+          double distance = Geolocator.distanceBetween( // Calculate the distance between the start position and the current position
+            last.latitude,
+            last.longitude,
+            current.latitude,
+            current.longitude,
+          );
+          totalDistance += distance*0.000621371; // Convert distance to *miles* then add to total distance
+          last = current; // Update the start position to the current position
+          print('Current location: $current'); // Print the current location
+          print('Current distance: $totalDistance'); // Print the current distance
+        } catch (e){
+          last=current;
+        }
     });
   }
 
   // Method to get an Entry object for the trip
   Entry getEntry() {
-    return Entry(start, end, totalDistance.toInt()); // Create an Entry object with the start time, end time, and total distance
+    return Entry(start, end, totalDistance); // Create an Entry object with the start time, end time, and total distance
   }
 }

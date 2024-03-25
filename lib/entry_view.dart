@@ -13,7 +13,6 @@ class EntryView extends StatefulWidget {
 
 class _EntryView extends State<EntryView> {
   EntryListManager listManager = EntryListManager();
-  GPSTrip gpsTrip = GPSTrip();
   bool isTracking = false;
 
   @override
@@ -31,7 +30,7 @@ class _EntryView extends State<EntryView> {
   void _addEntry() async {
     DateTime? start;
     DateTime? end;
-    int? mileage;
+    double? mileage;
     List<String> tagList = <String>[];
 
     if (isTracking) {
@@ -70,7 +69,7 @@ class _EntryView extends State<EntryView> {
                   )),
               TextField(
                 onChanged: (value) {
-                  mileage = int.parse(value);
+                  mileage = double.parse(value);
                 },
                 decoration: const InputDecoration(hintText: "Enter mileage"),
               ),
@@ -113,7 +112,7 @@ class _EntryView extends State<EntryView> {
   void _editEntry(Entry entry, int index) async {
     DateTime? start = entry.start;
     DateTime? end = entry.end;
-    int? mileage = entry.mileage;
+    double? mileage = entry.mileage;
     List<String> tagList = entry.tagList;
 
     // Create TextEditingController for each TextField
@@ -163,7 +162,7 @@ class _EntryView extends State<EntryView> {
                 controller: mileageController, // Set the controller
                 onChanged: (value) {
                   // When the text changes, update the mileage
-                  mileage = int.parse(value);
+                  mileage = double.parse(value);
                 },
                 decoration: const InputDecoration(hintText: "Enter mileage"),
               ),
@@ -217,6 +216,7 @@ class _EntryView extends State<EntryView> {
     );
   }
 
+  GPSTrip gpsTrip = GPSTrip();
   void _toggleGPSTracking() async {
     if (isTracking) {
       isTracking = false;
@@ -224,8 +224,7 @@ class _EntryView extends State<EntryView> {
       listManager.addEntry(gpsTrip.getEntry());
     } else {
       isTracking = true;
-      gpsTrip = GPSTrip();
-      await gpsTrip.trackLocation();
+      gpsTrip.startTrip();
     }
   }
 
