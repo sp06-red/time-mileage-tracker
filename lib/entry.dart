@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 
 class Entry{
   late DateTime start;
@@ -20,7 +21,7 @@ class Entry{
   }
 
   String _formatDate(DateTime date){
-    return "${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+    return "${DateFormat.MMMd().format(date)} ${DateFormat.Hm().format(date)}";
   }
 
   String _padTime(int n){
@@ -29,28 +30,31 @@ class Entry{
 
   @override
   String toString(){
-    String out = "";
-    out += "${_formatDate(start)} to ${_formatDate(end)}\n";
-    int h = (duration!.inHours%24);
-    int m = (duration!.inMinutes%60);
-    String s = (duration!.inSeconds%60).toString();
-    String s = "";
-    if (seconds >= 10) s = seconds.toString().padLeft(2,'0');
-    else s = seconds.toString();
-    out += "Duration: ${(h == 0) ? (m == "00" ? "$s\s" : "$m:$s") : "$h:$m:$s"}\n";
-    out += "Distance: $mileage";
-    try {
-      if (tags.first.isNotEmpty) {
-        out += "\n";
-        for (String tag in tags) {
-          out += "+$tag ";
-        }
-      }
-    } catch (e){
-      print("No tags");
+    final out = StringBuffer();
+    out.write("${_formatDate(start)} to ${_formatDate(end)}\n");
+    List time = [duration!.inHours%24, duration!.inMinutes%60, duration!.inSeconds%60];
+    out.write("Duration: ");
+    if(time[0] != 0) {
+      out.write("${time[0]}:${_padTime(time[1])}:${_padTime(time[2])}");
+    } else if (time[1] != 0) {
+      out.write("${time[1]}:${_padTime(time[2])}");
+    } else {
+      out.write(time[2] < 10 ? time[2] : _padTime(time[2]));
+      out.write("s");
     }
-    return out;
-  }
+    out.write(" | Distance: $mileage");
+      try {
+        if (tags.first.isNotEmpty) {
+          out.write("\n");
+          for (String tag in tags) {
+            out.write("+$tag ");
+          }
+        }
+      } catch (e){
+        print("No tags");
+      }
+      return out.toString();
+    }
 
   void retag(List<String> taglist){
     tags = <String>[];
@@ -59,11 +63,12 @@ class Entry{
     }
   }
 
+
   void addtag(String tag){
     tags.add(tag);
   }
 
-  List<String> getTags(){
+  List<String> get tagList{
     return tags;
   }
 
