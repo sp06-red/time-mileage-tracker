@@ -58,10 +58,13 @@ class GPSTrip {
   }
 
   // Method to end the trip
-  Future<void> endTrip() async {
+  Future<Entry> endTrip() async {
     end = DateTime.now(); // Set the end time to the current time
     positionStreamSubscription?.cancel(); // Cancel the position stream subscription
     positionStreamSubscription = null; // Set the subscription to null after cancelling
+    Entry out = Entry(start,end,totalDistance);
+    totalDistance=0;
+    return out;
   }
 
   // Method to track the location during the trip
@@ -82,10 +85,5 @@ class GPSTrip {
           last=current;
         }
     });
-  }
-
-  // Method to get an Entry object for the trip
-  Entry getEntry() {
-    return Entry(start, end, totalDistance); // Create an Entry object with the start time, end time, and total distance
   }
 }

@@ -221,8 +221,7 @@ class _EntryView extends State<EntryView> {
   void _toggleGPSTracking() async {
     if (isTracking) {
       isTracking = false;
-      await gpsTrip.endTrip();
-      listManager.addEntry(gpsTrip.getEntry());
+      listManager.addEntry(await gpsTrip.endTrip());
     } else {
       isTracking = true;
       gpsTrip.startTrip();
