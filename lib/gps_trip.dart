@@ -13,7 +13,7 @@ class GPSTrip {
 
   final LocationSettings locationSettings = AndroidSettings(
     accuracy: LocationAccuracy.high,
-    distanceFilter: 3,
+    distanceFilter: 5,
       /*foregroundNotificationConfig: const ForegroundNotificationConfig(
         notificationText:
         "Example app will continue to receive your location even when you aren't using it",
@@ -22,10 +22,7 @@ class GPSTrip {
       )*/
   );
 
-  GPSTrip(){
-    start = DateTime.now();
-    startTrip();
-  }
+  GPSTrip();
 
   Future<void> permissionCheck() async {
     bool serviceEnabled;
@@ -55,6 +52,9 @@ class GPSTrip {
   // Method to start the trip
   void startTrip() async {
     start = DateTime.now();
+    permissionCheck();
+    last = (await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high))!;
+    await _trackLocation();
   }
 
   // Method to end the trip
@@ -65,7 +65,7 @@ class GPSTrip {
   }
 
   // Method to track the location during the trip
-  Future<void> trackLocation() async {
+  Future<void> _trackLocation() async {
       positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position current) { // Subscribe to the position stream
         try{
           double distance = Geolocator.distanceBetween( // Calculate the distance between the start position and the current position

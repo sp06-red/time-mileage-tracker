@@ -13,7 +13,6 @@ class EntryView extends StatefulWidget {
 
 class _EntryView extends State<EntryView> {
   EntryListManager listManager = EntryListManager();
-  GPSTrip gpsTrip = GPSTrip();
   bool isTracking = false;
 
   @override
@@ -217,6 +216,7 @@ class _EntryView extends State<EntryView> {
     );
   }
 
+  GPSTrip gpsTrip = GPSTrip();
   void _toggleGPSTracking() async {
     if (isTracking) {
       isTracking = false;
@@ -224,8 +224,7 @@ class _EntryView extends State<EntryView> {
       listManager.addEntry(gpsTrip.getEntry());
     } else {
       isTracking = true;
-      gpsTrip = GPSTrip();
-      await gpsTrip.trackLocation();
+      gpsTrip.startTrip();
     }
   }
 
