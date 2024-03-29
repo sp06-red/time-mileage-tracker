@@ -5,7 +5,6 @@ import 'package:time_mileage_tracker/entry.dart';
 import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'entry_list_manager.dart';
-import 'filter.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -314,7 +313,7 @@ class _EntryView extends State<EntryView> {
         itemCount: listManager.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 3),
+            padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 3),
             child: Card(
               child: ListTile(
                 leading: const Icon(Icons.local_taxi),
@@ -328,7 +327,9 @@ class _EntryView extends State<EntryView> {
       bottomNavigationBar: BottomAppBar(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              /* GPS toggle switch */
               Card(
                 child: IconButton(
                     icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
@@ -338,6 +339,7 @@ class _EntryView extends State<EntryView> {
                       });
                     }),
               ),
+              /* Manual entry add */
               Card(
                 child: IconButton(
                     icon: const Icon(Icons.add),
@@ -345,6 +347,7 @@ class _EntryView extends State<EntryView> {
                       _addEntry();
                     }),
               ),
+              /* Flush list */
               Card(
                   child: IconButton(
                     icon: const Icon(Icons.delete),
@@ -354,6 +357,7 @@ class _EntryView extends State<EntryView> {
                       });},
                   )
               ),
+              /* Filter */
               Card(
                   child: IconButton(
                     icon: const Icon(Icons.filter_list),
@@ -362,7 +366,7 @@ class _EntryView extends State<EntryView> {
                         _filter();
                       });},
                   )
-              )
+              ),
             ],
           )
       ),
