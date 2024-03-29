@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:time_mileage_tracker/entry.dart';
 import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
@@ -39,8 +40,9 @@ class _EntryView extends State<EntryView> {
       if(list[i].mileage < minDist) minDist = list[i].mileage;
       if(list[i].mileage > maxDist) maxDist = list[i].mileage;
     }
-
     RangeValues distRange = RangeValues(minDist, maxDist);
+
+    DateTimeRange dateRangeSelection = DateTimeRange(start: list.last.start, end: list.first.end);
     await showDialog(
       context: context,
       builder: (BuildContext context){
@@ -51,18 +53,39 @@ class _EntryView extends State<EntryView> {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    RangeSlider(
-                      min: minDist,
-                      max: maxDist,
-                      values: distRange,
-                      labels: RangeLabels(
-                        distRange.start.round().toString(),
-                        distRange.end.round().toString(),
+                    Card(
+                        child: SizedBox(
+                          width: 600,
+                          child: TextButton(
+                            child: Text("${DateFormat.MMMd().format(dateRangeSelection.start)} to ${DateFormat.MMMd().format(dateRangeSelection.end)}"),
+                            onPressed: () async {
+                              dateRangeSelection = (await showDateRangePicker(context: context, firstDate: list.last.start, lastDate: list.first.start))!;
+                              print(dateRangeSelection.start.toString());
+                              setState;
+                            },
+                          ),
+                        )
+                    ),
+                    /* Distance Range Slider */
+                    Card(
+                      child: Column(
+                        children: [
+                          const Text("Distance"),
+                          RangeSlider(
+                            min: minDist,
+                            max: maxDist,
+                            values: distRange,
+                            labels: RangeLabels(
+                              distRange.start.round().toString(),
+                              distRange.end.round().toString(),
+                            ),
+                            onChanged: (RangeValues values ){
+                              setState(() => distRange=values);
+                            },
+                          ),
+                        ],
                       ),
-                      onChanged: (RangeValues values ){
-                        setState(() => distRange=values);
-                      },
-                    )
+                    ),
                   ]
                 );
               }
