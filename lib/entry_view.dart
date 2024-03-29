@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:time_mileage_tracker/entry.dart';
 import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'entry_list_manager.dart';
+import 'filter.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -25,6 +27,54 @@ class _EntryView extends State<EntryView> {
     listManager = EntryListManager();
     await Future.delayed(Duration(milliseconds:333));
     setState(() {});
+  }
+
+  void _filter() async {
+    List<Entry> list = listManager.entryList;
+
+    // get maximum/minimum distances
+    double minDist = list.first.mileage;
+    double maxDist = minDist;
+    for(int i = 0; i != list.length; i++){
+      if(list[i].mileage < minDist) minDist = list[i].mileage;
+      if(list[i].mileage > maxDist) maxDist = list[i].mileage;
+    }
+
+    RangeValues distRange = RangeValues(minDist, maxDist);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context){
+        return AlertDialog(
+          title: const Text("Filter"),
+          content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RangeSlider(
+                      min: minDist,
+                      max: maxDist,
+                      values: distRange,
+                      labels: RangeLabels(
+                        distRange.start.round().toString(),
+                        distRange.end.round().toString(),
+                      ),
+                      onChanged: (RangeValues values ){
+                        setState(() => distRange=values);
+                      },
+                    )
+                  ]
+                );
+              }
+          ),
+          actions: [
+            TextButton(onPressed: () {
+              Navigator.of(context).pop();
+            }, child: const Text("Apply")),
+          ],
+        );
+      }
+    );
   }
 
   void _addEntry() async {
@@ -278,6 +328,15 @@ class _EntryView extends State<EntryView> {
                     onPressed: (){
                       setState(() {
                         listManager.wipe();
+                      });},
+                  )
+              ),
+              Card(
+                  child: IconButton(
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: (){
+                      setState(() {
+                        _filter();
                       });},
                   )
               )
