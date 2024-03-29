@@ -18,14 +18,14 @@ class _EntryView extends State<EntryView> {
   bool isTracking = false;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     setup();
   }
 
   Future<void> setup() async {
     listManager = EntryListManager();
-    await Future.delayed(Duration(milliseconds:333));
+    await Future.delayed(Duration(milliseconds: 333));
     setState(() {});
   }
 
@@ -35,68 +35,70 @@ class _EntryView extends State<EntryView> {
     // get maximum/minimum distances
     double minDist = list.first.mileage;
     double maxDist = minDist;
-    for(int i = 0; i != list.length; i++){
-      if(list[i].mileage < minDist) minDist = list[i].mileage;
-      if(list[i].mileage > maxDist) maxDist = list[i].mileage;
+    for (int i = 0; i != list.length; i++) {
+      if (list[i].mileage < minDist) minDist = list[i].mileage;
+      if (list[i].mileage > maxDist) maxDist = list[i].mileage;
     }
     RangeValues distRange = RangeValues(minDist, maxDist);
 
-    DateTimeRange dateRangeSelection = DateTimeRange(start: list.last.start, end: list.first.end);
+    DateTimeRange dateRangeSelection =
+        DateTimeRange(start: list.last.start, end: list.first.end);
     await showDialog(
-      context: context,
-      builder: (BuildContext context){
-        return AlertDialog(
-          title: const Text("Filter"),
-          content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Card(
-                        child: SizedBox(
-                          width: 600,
-                          child: TextButton(
-                            child: Text("${DateFormat.MMMd().format(dateRangeSelection.start)} to ${DateFormat.MMMd().format(dateRangeSelection.end)}"),
-                            onPressed: () async {
-                              dateRangeSelection = (await showDateRangePicker(context: context, firstDate: list.last.start, lastDate: list.first.start))!;
-                              print(dateRangeSelection.start.toString());
-                              setState;
-                            },
-                          ),
-                        )
-                    ),
-                    /* Distance Range Slider */
-                    Card(
-                      child: Column(
-                        children: [
-                          const Text("Distance"),
-                          RangeSlider(
-                            min: minDist,
-                            max: maxDist,
-                            values: distRange,
-                            labels: RangeLabels(
-                              distRange.start.round().toString(),
-                              distRange.end.round().toString(),
-                            ),
-                            onChanged: (RangeValues values ){
-                              setState(() => distRange=values);
-                            },
-                          ),
-                        ],
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Filter"),
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+              return Column(mainAxisSize: MainAxisSize.min, children: [
+                Card(
+                    child: SizedBox(
+                  width: 600,
+                  child: TextButton(
+                    child: Text(
+                        "${DateFormat.MMMd().format(dateRangeSelection.start)} to ${DateFormat.MMMd().format(dateRangeSelection.end)}"),
+                    onPressed: () async {
+                      dateRangeSelection = (await showDateRangePicker(
+                          context: context,
+                          firstDate: list.last.start,
+                          lastDate: list.first.start))!;
+                      print(dateRangeSelection.start.toString());
+                      setState;
+                    },
+                  ),
+                )),
+                /* Distance Range Slider */
+                Card(
+                  child: Column(
+                    children: [
+                      const Text("Distance"),
+                      RangeSlider(
+                        min: minDist,
+                        max: maxDist,
+                        divisions: ((maxDist - minDist) / 5).round(),
+                        values: distRange,
+                        labels: RangeLabels(
+                          distRange.start.round().toString(),
+                          distRange.end.round().toString(),
+                        ),
+                        onChanged: (RangeValues values) {
+                          setState(() => distRange = values);
+                        },
                       ),
-                    ),
-                  ]
-                );
-              }
-          ),
-          actions: [
-            TextButton(onPressed: () {
-              Navigator.of(context).pop();
-            }, child: const Text("Apply")),
-          ],
-        );
-      }
-    );
+                    ],
+                  ),
+                ),
+              ]);
+            }),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Apply")),
+            ],
+          );
+        });
   }
 
   void _addEntry() async {
@@ -170,7 +172,7 @@ class _EntryView extends State<EntryView> {
                   Entry temp = Entry(start!, end!, mileage!);
                   temp.retag(tagList);
                   listManager.addEntry(temp);
-                  setState(() { /* Contents of entry list changed */ });
+                  setState(() {/* Contents of entry list changed */});
                   Navigator.of(context).pop();
                 }
               },
@@ -278,7 +280,7 @@ class _EntryView extends State<EntryView> {
                   entry.retag(tagList);
                   entry.duration = entry.end.difference(entry.start);
                   listManager.addEntry(entry);
-                  setState(() { /* Contents of entry list changed */ });
+                  setState(() {/* Contents of entry list changed */});
                   Navigator.of(context).pop();
                 }
               },
@@ -326,50 +328,49 @@ class _EntryView extends State<EntryView> {
       ),
       bottomNavigationBar: BottomAppBar(
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              /* GPS toggle switch */
-              Card(
-                child: IconButton(
-                    icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
-                    onPressed: () {
-                      setState(() {
-                        _toggleGPSTracking();
-                      });
-                    }),
-              ),
-              /* Manual entry add */
-              Card(
-                child: IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      _addEntry();
-                    }),
-              ),
-              /* Flush list */
-              Card(
-                  child: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: (){
-                      setState(() {
-                        listManager.wipe();
-                      });},
-                  )
-              ),
-              /* Filter */
-              Card(
-                  child: IconButton(
-                    icon: const Icon(Icons.filter_list),
-                    onPressed: (){
-                      setState(() {
-                        _filter();
-                      });},
-                  )
-              ),
-            ],
-          )
-      ),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          /* GPS toggle switch */
+          Card(
+            child: IconButton(
+                icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+                onPressed: () {
+                  setState(() {
+                    _toggleGPSTracking();
+                  });
+                }),
+          ),
+          /* Manual entry add */
+          Card(
+            child: IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  _addEntry();
+                }),
+          ),
+          /* Flush list */
+          Card(
+              child: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              setState(() {
+                listManager.wipe();
+              });
+            },
+          )),
+          /* Filter */
+          Card(
+              child: IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              setState(() {
+                _filter();
+              });
+            },
+          )),
+        ],
+      )),
     );
   }
 }
