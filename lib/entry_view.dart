@@ -31,6 +31,7 @@ class _EntryView extends State<EntryView> {
 
   void _filter() async {
     List<Entry> list = listManager.entryList;
+    String tagList = "";
 
     // get maximum/minimum distances
     double minDist = list.first.mileage;
@@ -75,7 +76,7 @@ class _EntryView extends State<EntryView> {
                       RangeSlider(
                         min: minDist,
                         max: maxDist,
-                        divisions: ((maxDist - minDist) / 5).round(),
+                        divisions: 20,
                         values: distRange,
                         labels: RangeLabels(
                           distRange.start.round().toString(),
@@ -88,6 +89,13 @@ class _EntryView extends State<EntryView> {
                     ],
                   ),
                 ),
+                Card(
+                    child: TextField(
+                  onChanged: (value) {
+                    tagList = value;
+                  },
+                  decoration: const InputDecoration(hintText: "Tags: "),
+                ))
               ]);
             }),
             actions: [
@@ -180,6 +188,33 @@ class _EntryView extends State<EntryView> {
           ],
         );
       },
+    );
+  }
+
+  void _clearListDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete all entries?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }
+            ),
+            TextButton(
+              child: const Text('Confirm'),
+              onPressed: () {
+                listManager.wipe();
+                setState((){});
+                Navigator.of(context).pop();
+              }
+            )
+          ]
+        );
+      }
     );
   }
 
@@ -354,9 +389,7 @@ class _EntryView extends State<EntryView> {
               child: IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
-              setState(() {
-                listManager.wipe();
-              });
+              _clearListDialog();
             },
           )),
           /* Filter */
@@ -369,6 +402,16 @@ class _EntryView extends State<EntryView> {
               });
             },
           )),
+          /* export */
+          Card(
+              child: IconButton(
+                icon: const Icon(Icons.file_upload_sharp),
+                onPressed: () {
+                  setState(() {
+                    _filter();
+                  });
+                },
+              )),
         ],
       )),
     );
