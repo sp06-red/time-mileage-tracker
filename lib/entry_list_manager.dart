@@ -3,39 +3,42 @@ import 'storage_manager.dart';
 import 'entry.dart';
 
 class EntryListManager with ChangeNotifier{
-  List<Entry> entryList = <Entry>[];
+  List<Entry> globalList = <Entry>[];
+  List<Entry> activeList = <Entry>[];
   StorageManager man = StorageManager();
 
   EntryListManager(){
     _load();
   }
+
   void wipe(){
-    entryList = <Entry>[];
+    globalList = <Entry>[];
     _save();
     notifyListeners();
   }
+
   void addEntry(Entry e){
-    entryList.add(e);
+    globalList.add(e);
     _sort();
     notifyListeners();
     _save();
   }
 
   _sort(){
-    entryList.sort((a,b) => b.start.compareTo(a.start));
+    globalList.sort((a,b) => b.start.compareTo(a.start));
   }
   int get length{
-    return entryList.length;
+    return globalList.length;
   }
 
   Entry at(int i){
-    return entryList[i];
+    return activeList[i];
   }
 
   void removeEntry(int hashCode){
-    for(int i = 0; i != entryList.length; i++){
-      if(entryList[i].hashCode == hashCode){
-        entryList.removeAt(i);
+    for(int i = 0; i != globalList.length; i++){
+      if(globalList[i].hashCode == hashCode){
+        globalList.removeAt(i);
         _save();
         notifyListeners();
         return;
@@ -43,16 +46,38 @@ class EntryListManager with ChangeNotifier{
     }
   }
 
+  void buildFilterList(DateTime start, DateTime end, RangeValues distance, List<String> taglist){
+    List<Entry> tempList = <Entry>[];
+    for( Entry e in globalList) {
+      if (e.start.millisecondsSinceEpoch >= start.millisecondsSinceEpoch
+          && e.end.millisecondsSinceEpoch < end.millisecondsSinceEpoch ) {
+        if (distance.start < e.mileage
+            && distance.end > e.mileage) {
+          for( String tag in taglist){
+            if(e.tagList.contains(tag)){
+              tempList.add(e);
+            }
+          }
+        }
+      }
+    }
+    activeList=tempList;
+  }
+
+  void reset(){
+    activeList = globalList;
+  }
+
   List<Entry> get list{
-    return entryList;
+    return activeList;
   }
 
   void _save(){
-    man.writeEntries(entryList);
+    man.writeEntries(globalList);
   }
 
   void _load() async{
-    entryList = await man.readEntries();
+    globalList = await man.readEntries();
     notifyListeners();
   }
 }
