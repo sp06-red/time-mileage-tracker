@@ -372,17 +372,16 @@ class _EntryView extends State<EntryView> {
           Card(
             child: ElevatedButton.icon(
                 label: Text( !isTracking ? "GPS" : "Stop GPS Entry"),
-                icon: Icon(isTracking ? Icons.square : Icons.circle_sharp),
+                icon: Icon(isTracking ? Icons.gps_off : Icons.gps_not_fixed),
                 onPressed: () {
                   setState(() {
-                    _toggleGPSTracking();
+jjk                    _toggleGPSTracking();
                   });
                 }),
           ),
           /* Manual entry add */
           if( !isTracking ) Card(
-            child: ElevatedButton.icon(
-                label: const Text("New"),
+            child: IconButton(
                 icon: const Icon(Icons.add),
                 onPressed: () {
                   _addEntry();
