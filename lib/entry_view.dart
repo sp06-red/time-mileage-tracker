@@ -5,7 +5,29 @@ import 'package:time_mileage_tracker/entry.dart';
 import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'entry_list_manager.dart';
+class FilterOptions {
+  DateTimeRange? dateFilter;
+  RangeValues ?distanceFilter;
+  List<String> ?tagList;
 
+  FilterOptions(DateTimeRange dateFilter, RangeValues distanceFilter, List<String> tagList);
+
+  void reset() {
+    List<Entry> list = listManager.master;
+    List<String> tagList = <String>[];
+    // get maximum/minimum distances
+    double minDist = list.first.mileage;
+    double maxDist = minDist;
+    for (int i = 0; i != list.length; i++) {
+      if (list[i].mileage < minDist) minDist = list[i].mileage;
+      if (list[i].mileage > maxDist) maxDist = list[i].mileage;
+    }
+    RangeValues distRange = RangeValues(minDist, maxDist);
+
+    DateTimeRange dateRangeSelection =
+    DateTimeRange(start: list.last.start, end: list.first.end)
+  }
+}
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
   final String title;
@@ -16,6 +38,7 @@ class EntryView extends StatefulWidget {
 class _EntryView extends State<EntryView> {
   EntryListManager listManager = EntryListManager();
   bool isTracking = false;
+  FilterOptions ?filterOptions;
 
   @override
   void initState() {
@@ -30,19 +53,8 @@ class _EntryView extends State<EntryView> {
   }
 
   void _filter() async{
-    List<Entry> list = listManager.master;
-    List<String> tagList = <String>[];
-    // get maximum/minimum distances
-    double minDist = list.first.mileage;
-    double maxDist = minDist;
-    for (int i = 0; i != list.length; i++) {
-      if (list[i].mileage < minDist) minDist = list[i].mileage;
-      if (list[i].mileage > maxDist) maxDist = list[i].mileage;
-    }
-    RangeValues distRange = RangeValues(minDist, maxDist);
 
-    DateTimeRange dateRangeSelection =
-        DateTimeRange(start: list.last.start, end: list.first.end);
+    filterOptions = FilterOptions()
     await showDialog(
         context: context,
         builder: (BuildContext context) {
