@@ -29,10 +29,9 @@ class _EntryView extends State<EntryView> {
     setState(() {});
   }
 
-  void _filter() async {
-    List<Entry> list = listManager.entryList;
-    String tagList = "";
-
+  void _filter() async j{
+    List<Entry> list = listManager.list;
+    List<String> tagList = <String>[];
     // get maximum/minimum distances
     double minDist = list.first.mileage;
     double maxDist = minDist;
@@ -92,7 +91,7 @@ class _EntryView extends State<EntryView> {
                 Card(
                     child: TextField(
                   onChanged: (value) {
-                    tagList = value;
+                    tagList = value.split(' ');
                   },
                   decoration: const InputDecoration(hintText: "Tags: "),
                 ))
@@ -101,6 +100,9 @@ class _EntryView extends State<EntryView> {
             actions: [
               TextButton(
                   onPressed: () {
+                    setState(() {
+                      listManager.buildFilterList(dateRangeSelection, distRange, tagList );
+                    });
                     Navigator.of(context).pop();
                   },
                   child: const Text("Apply")),
