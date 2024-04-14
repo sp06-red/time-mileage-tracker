@@ -5,6 +5,7 @@ import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'entry_list_manager.dart';
 import 'filterOptions.dart';
+import 'settings_page.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -360,6 +361,18 @@ class _EntryView extends State<EntryView> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed:() {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsPage()),
+                );
+            }
+          )
+        ]
       ),
       body: ListView.builder(
         scrollDirection: Axis.vertical,
@@ -385,7 +398,7 @@ class _EntryView extends State<EntryView> {
           /* GPS toggle switch */
           Card(
             child: IconButton(
-                icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+                icon: Icon(isTracking ? Icons.square : Icons.circle_sharp),
                 onPressed: () {
                   setState(() {
                     _toggleGPSTracking();
