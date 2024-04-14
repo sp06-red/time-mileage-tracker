@@ -6,15 +6,16 @@ import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'entry_list_manager.dart';
 class FilterOptions {
-  DateTimeRange? dateFilter;
-  RangeValues ?distanceFilter;
-  List<String> ?tagList;
+  late DateTimeRange dateFilter;
+  late RangeValues distanceFilter;
+  late List<String> tagList;
 
-  FilterOptions(DateTimeRange dateFilter, RangeValues distanceFilter, List<String> tagList);
+  FilterOptions(List<Entry> list){
+    reset(list);
+  }
 
-  void reset() {
-    List<Entry> list = listManager.master;
-    List<String> tagList = <String>[];
+  void reset(List<Entry> list) {
+    tagList = <String>[];
     // get maximum/minimum distances
     double minDist = list.first.mileage;
     double maxDist = minDist;
@@ -22,10 +23,8 @@ class FilterOptions {
       if (list[i].mileage < minDist) minDist = list[i].mileage;
       if (list[i].mileage > maxDist) maxDist = list[i].mileage;
     }
-    RangeValues distRange = RangeValues(minDist, maxDist);
-
-    DateTimeRange dateRangeSelection =
-    DateTimeRange(start: list.last.start, end: list.first.end)
+    distanceFilter = RangeValues(minDist, maxDist);
+    dateFilter = DateTimeRange(start: list.last.start, end: list.first.end);
   }
 }
 class EntryView extends StatefulWidget {
@@ -49,12 +48,22 @@ class _EntryView extends State<EntryView> {
   Future<void> setup() async {
     listManager = await EntryListManager();
     await Future.delayed(Duration(milliseconds: 333));
+    filterOptions = FilterOptions(listManager.globalList);
     setState(() {});
   }
 
   void _filter() async{
+    List<Entry> list = listManager.globalList;
+    double minDist = list.first.mileage;
+    double maxDist = minDist;
+    for (int i = 0; i != list.length; i++) {
+      if (list[i].mileage < minDist) minDist = list[i].mileage;
+      if (list[i].mileage > maxDist) maxDist = list[i].mileage;
+    }
 
-    filterOptions = FilterOptions()
+    // Create TextEditingController for each TextField
+    TextEditingController tags = TextEditingController(text: filterOptions!.tagList.join(' ') );
+
     await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -68,13 +77,12 @@ class _EntryView extends State<EntryView> {
                   width: 600,
                   child: TextButton(
                     child: Text(
-                        "${DateFormat.MMMd().format(dateRangeSelection.start)} to ${DateFormat.MMMd().format(dateRangeSelection.end)}"),
+                        "${DateFormat.MMMd().format(filterOptions!.dateFilter!.start)} to ${DateFormat.MMMd().format(filterOptions!.dateFilter!.end)}"),
                     onPressed: () async {
-                      dateRangeSelection = (await showDateRangePicker(
+                      filterOptions?.dateFilter = (await showDateRangePicker(
                           context: context,
-                          firstDate: list.last.start,
-                          lastDate: list.first.start))!;
-                      print(dateRangeSelection.start.toString());
+                          firstDate: listManager.globalList.last.start,
+                          lastDate: listManager.globalList.first.start))!;
                       setState;
                     },
                   ),
@@ -88,13 +96,13 @@ class _EntryView extends State<EntryView> {
                         min: minDist,
                         max: maxDist,
                         divisions: 20,
-                        values: distRange,
+                        values: filterOptions!.distanceFilter,
                         labels: RangeLabels(
-                          distRange.start.round().toString(),
-                          distRange.end.round().toString(),
+                          filterOptions!.distanceFilter.start.round().toString(),
+                          filterOptions!.distanceFilter.end.round().toString(),
                         ),
                         onChanged: (RangeValues values) {
-                          setState(() => distRange = values);
+                          setState(() => filterOptions?.distanceFilter = values);
                         },
                       ),
                     ],
@@ -102,8 +110,9 @@ class _EntryView extends State<EntryView> {
                 ),
                 Card(
                     child: TextField(
-                  onChanged: (value) {
-                    tagList = value.split(' ');
+                  controller: tags,
+                      onChanged: (value) {
+                    filterOptions!.tagList = value.split(' ');
                   },
                   decoration: const InputDecoration(hintText: "Tags: "),
                 ))
@@ -113,6 +122,7 @@ class _EntryView extends State<EntryView> {
               TextButton(
                   onPressed: () {
                     setState(() {
+                      filterOptions?.reset(listManager.globalList);
                       listManager.reset();
                     });
                     Navigator.of(context).pop();
@@ -121,7 +131,7 @@ class _EntryView extends State<EntryView> {
               TextButton(
                   onPressed: () {
                     setState(() {
-                      listManager.buildFilterList(dateRangeSelection, distRange, tagList );
+                      listManager.buildFilterList(filterOptions!.dateFilter, filterOptions!.distanceFilter, filterOptions!.tagList );
                     });
                     Navigator.of(context).pop();
                   },
