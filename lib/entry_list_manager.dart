@@ -72,6 +72,10 @@ class EntryListManager with ChangeNotifier{
     activeIsGlobal = false;
   }
 
+  bool get isGlobal{
+    return activeIsGlobal;
+  }
+
   void reset(){
     activeList = globalList;
     activeIsGlobal = true;

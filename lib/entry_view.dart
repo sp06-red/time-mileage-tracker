@@ -60,10 +60,12 @@ class _EntryView extends State<EntryView> {
       if (list[i].mileage < minDist) minDist = list[i].mileage;
       if (list[i].mileage > maxDist) maxDist = list[i].mileage;
     }
-
     // Create TextEditingController for each TextField
     TextEditingController tags = TextEditingController(text: filterOptions!.tagList.join(' ') );
 
+    if(listManager.isGlobal){
+      filterOptions!.reset(listManager.globalList);
+    }
     await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -331,6 +333,7 @@ class _EntryView extends State<EntryView> {
               child: const Text('Delete'),
               onPressed: () {
                 listManager.removeEntry(entry.hashCode);
+                listManager.buildFilterList(filterOptions!.dateFilter, filterOptions!.distanceFilter, filterOptions!.tagList );
                 setState(() {});
                 Navigator.of(context).pop();
               },
