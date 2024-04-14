@@ -15,6 +15,8 @@ class EntryListManager with ChangeNotifier{
 
   void wipe(){
     globalList = <Entry>[];
+    activeList = globalList;
+    activeIsGlobal = true;
     _save();
     notifyListeners();
   }

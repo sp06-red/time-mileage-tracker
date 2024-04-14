@@ -207,6 +207,33 @@ class _EntryView extends State<EntryView> {
     );
   }
 
+  void _clearListDialog() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text("Delete all entries?"),
+              actions: <Widget>[
+                TextButton(
+                    child: const Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }
+                ),
+                TextButton(
+                    child: const Text('Confirm'),
+                    onPressed: () {
+                      listManager.wipe();
+                      setState((){});
+                      Navigator.of(context).pop();
+                    }
+                )
+              ]
+          );
+        }
+    );
+  }
+
   void _editEntry(Entry entry, int index) async {
     DateTime? start = entry.start;
     DateTime? end = entry.end;
@@ -369,13 +396,20 @@ class _EntryView extends State<EntryView> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           /* GPS toggle switch */
-          Card(
-            child: ElevatedButton.icon(
-                label: Text( !isTracking ? "GPS" : "Stop GPS Entry"),
-                icon: Icon(isTracking ? Icons.gps_off : Icons.gps_not_fixed),
+          if (isTracking) ElevatedButton.icon(
+              label: const Text("Stop GPS Entry"),
+              icon: const Icon(Icons.gps_off),
+              onPressed: () {
+                setState(() {
+                  _toggleGPSTracking();
+                });
+              }),
+          if( !isTracking ) Card(
+            child: IconButton(
+                icon: const Icon(Icons.gps_fixed),
                 onPressed: () {
                   setState(() {
-jjk                    _toggleGPSTracking();
+                    _toggleGPSTracking();
                   });
                 }),
           ),
@@ -387,10 +421,17 @@ jjk                    _toggleGPSTracking();
                   _addEntry();
                 }),
           ),
+          /* Flush list */
+          if( !isTracking )Card(
+              child: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  _clearListDialog();
+                },
+              )),
           /* Filter */
           if( !isTracking ) Card(
-              child: ElevatedButton.icon(
-                label: const Text("Filter"),
+              child: IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
               setState(() {
