@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'storage_manager.dart';
 import 'entry.dart';
+import 'filterOptions.dart';
 
 class EntryListManager with ChangeNotifier{
   List<Entry> globalList = <Entry>[];
@@ -51,14 +52,18 @@ class EntryListManager with ChangeNotifier{
     }
   }
 
+  void buildFilterListFromOptions(FilterOptions options){
+    buildFilterList(options.dateFilter, options.distanceFilter, options.tagList);
+  }
+
   void buildFilterList(DateTimeRange dateTimeRange, RangeValues distance, List<String> taglist){
     List<Entry> tempList = <Entry>[];
     for( Entry e in globalList) {
       if (e.start.millisecondsSinceEpoch >= dateTimeRange.start.millisecondsSinceEpoch && e.end.millisecondsSinceEpoch <= dateTimeRange.end.millisecondsSinceEpoch ) {
         if (distance.start <= e.mileage && distance.end >= e.mileage) {
-          if(taglist.isEmpty)
+          if(taglist.isEmpty) {
             tempList.add(e);
-          else {
+          } else {
             for( String tag in taglist){
               if(e.tagList.contains(tag)){
                 tempList.add(e);
