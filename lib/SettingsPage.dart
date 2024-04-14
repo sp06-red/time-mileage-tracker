@@ -13,12 +13,42 @@ class SettingsPage extends StatelessWidget {
       body: SettingsList(
         sections: [
           SettingsSection(
-            title: const Text("Saved Locations"),
+            title: const Text("Account"),
             tiles: [
+              SettingsTile(
+                title: const Text('Sign in for sync'),
+                leading: const Icon(Icons.login),
+                onPressed: (BuildContext context){}
+              )
+            ],
+          ),
+          SettingsSection(
+            title: const Text("General"),
+            tiles: [
+              SettingsTile.switchTile(
+                title: const Text('Follow device theme'),
+                leading: const Icon(Icons.format_paint_sharp),
+                initialValue: true,
+                onToggle: (bool value) { },
+              ),
+              SettingsTile(
+                title: const Text('Set unit preference'),
+                description: const Text("Imperial (Miles)"),
+                leading: const Icon(Icons.straighten),
+                onPressed: (BuildContext context){
+                },
+              ),
               SettingsTile(
                 title: const Text('Auto-tag locations'),
                 description: const Text("Modify saved locations to automatically apply tags based on trip start/end locations"),
-                leading: const Icon(Icons.location_pin),
+                leading: const Icon(Icons.edit_location_alt),
+                onPressed: (BuildContext context){
+                },
+              ),
+              SettingsTile(
+                title: const Text('GPS Poll Rate'),
+                description: const Text("5s"),
+                leading: const Icon(Icons.timer_outlined),
                 onPressed: (BuildContext context){
                 },
               )
