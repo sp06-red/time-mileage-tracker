@@ -45,8 +45,8 @@ class SettingsPage extends StatelessWidget {
       tiles: [
               SettingsTile.switchTile(
                 title: const Text('Auto-tag locations'),
-                leading: const Icon(Icons.format_paint_sharp),
-                initialValue: true,
+                leading: const Icon(Icons.tag),
+                initialValue: false,
                 onToggle: (bool value) { },
               ),
               SettingsTile(
