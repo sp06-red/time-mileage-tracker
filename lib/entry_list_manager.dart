@@ -5,6 +5,7 @@ import 'entry.dart';
 class EntryListManager with ChangeNotifier{
   List<Entry> globalList = <Entry>[];
   List<Entry> activeList = <Entry>[];
+  bool activeIsGlobal = true;
   StorageManager man = StorageManager();
 
   EntryListManager(){
@@ -19,6 +20,9 @@ class EntryListManager with ChangeNotifier{
 
   void addEntry(Entry e){
     globalList.add(e);
+    if (activeIsGlobal){
+      activeList = globalList;
+    }
     _sort();
     notifyListeners();
     _save();
@@ -27,8 +31,9 @@ class EntryListManager with ChangeNotifier{
   _sort(){
     globalList.sort((a,b) => b.start.compareTo(a.start));
   }
+
   int get length{
-    return globalList.length;
+    return activeList.length;
   }
 
   Entry at(int i){
@@ -46,30 +51,38 @@ class EntryListManager with ChangeNotifier{
     }
   }
 
-  void buildFilterList(DateTime start, DateTime end, RangeValues distance, List<String> taglist){
+  void buildFilterList(DateTimeRange dateTimeRange, RangeValues distance, List<String> taglist){
     List<Entry> tempList = <Entry>[];
     for( Entry e in globalList) {
-      if (e.start.millisecondsSinceEpoch >= start.millisecondsSinceEpoch
-          && e.end.millisecondsSinceEpoch < end.millisecondsSinceEpoch ) {
-        if (distance.start < e.mileage
-            && distance.end > e.mileage) {
-          for( String tag in taglist){
-            if(e.tagList.contains(tag)){
-              tempList.add(e);
+      if (e.start.millisecondsSinceEpoch >= dateTimeRange.start.millisecondsSinceEpoch && e.end.millisecondsSinceEpoch <= dateTimeRange.end.millisecondsSinceEpoch ) {
+        if (distance.start <= e.mileage && distance.end >= e.mileage) {
+          if(taglist.isEmpty)
+            tempList.add(e);
+          else {
+            for( String tag in taglist){
+              if(e.tagList.contains(tag)){
+                tempList.add(e);
+              }
             }
           }
         }
       }
     }
     activeList=tempList;
+    activeIsGlobal = false;
   }
 
   void reset(){
     activeList = globalList;
+    activeIsGlobal = true;
   }
 
   List<Entry> get list{
     return activeList;
+  }
+
+  List<Entry> get master{
+    return globalList;
   }
 
   void _save(){
@@ -78,6 +91,7 @@ class EntryListManager with ChangeNotifier{
 
   void _load() async{
     globalList = await man.readEntries();
+    activeList = globalList;
     notifyListeners();
   }
 }

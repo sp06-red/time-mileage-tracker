@@ -24,13 +24,13 @@ class _EntryView extends State<EntryView> {
   }
 
   Future<void> setup() async {
-    listManager = EntryListManager();
+    listManager = await EntryListManager();
     await Future.delayed(Duration(milliseconds: 333));
     setState(() {});
   }
 
-  void _filter() async j{
-    List<Entry> list = listManager.list;
+  void _filter() async{
+    List<Entry> list = listManager.master;
     List<String> tagList = <String>[];
     // get maximum/minimum distances
     double minDist = list.first.mileage;
@@ -98,6 +98,14 @@ class _EntryView extends State<EntryView> {
               ]);
             }),
             actions: [
+              TextButton(
+                  onPressed: () {
+                    setState(() {
+                      listManager.reset();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Reset")),
               TextButton(
                   onPressed: () {
                     setState(() {
