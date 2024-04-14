@@ -207,33 +207,6 @@ class _EntryView extends State<EntryView> {
     );
   }
 
-  void _clearListDialog() async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Delete all entries?"),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              }
-            ),
-            TextButton(
-              child: const Text('Confirm'),
-              onPressed: () {
-                listManager.wipe();
-                setState((){});
-                Navigator.of(context).pop();
-              }
-            )
-          ]
-        );
-      }
-    );
-  }
-
   void _editEntry(Entry entry, int index) async {
     DateTime? start = entry.start;
     DateTime? end = entry.end;
@@ -413,14 +386,6 @@ class _EntryView extends State<EntryView> {
                   _addEntry();
                 }),
           ),
-          /* Flush list */
-          Card(
-              child: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              _clearListDialog();
-            },
-          )),
           /* Filter */
           Card(
               child: IconButton(
