@@ -1,4 +1,4 @@
-import 'entry.dart';
+import 'Entry.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 

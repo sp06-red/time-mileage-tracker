@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:time_mileage_tracker/entry.dart';
+import 'package:time_mileage_tracker/Entry.dart';
 import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
-import 'entry_list_manager.dart';
-import 'filterOptions.dart';
-import 'settings_page.dart';
+import 'EntryListManager.dart';
+import 'FilterOptions.dart';
+import 'SettingsPage.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});

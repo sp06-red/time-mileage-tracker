@@ -1,5 +1,5 @@
 import 'package:geolocator/geolocator.dart'; // For geolocation features
-import 'entry.dart'; // For the Entry class
+import 'Entry.dart'; // For the Entry class
 import 'dart:async'; // For asynchronous programming
 
 // Defining the GPSTrip class
