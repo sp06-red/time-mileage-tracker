@@ -370,7 +370,8 @@ class _EntryView extends State<EntryView> {
         children: [
           /* GPS toggle switch */
           Card(
-            child: IconButton(
+            child: ElevatedButton.icon(
+                label: Text( !isTracking ? "GPS" : "Stop GPS Entry"),
                 icon: Icon(isTracking ? Icons.square : Icons.circle_sharp),
                 onPressed: () {
                   setState(() {
@@ -379,16 +380,18 @@ class _EntryView extends State<EntryView> {
                 }),
           ),
           /* Manual entry add */
-          Card(
-            child: IconButton(
+          if( !isTracking ) Card(
+            child: ElevatedButton.icon(
+                label: const Text("New"),
                 icon: const Icon(Icons.add),
                 onPressed: () {
                   _addEntry();
                 }),
           ),
           /* Filter */
-          Card(
-              child: IconButton(
+          if( !isTracking ) Card(
+              child: ElevatedButton.icon(
+                label: const Text("Filter"),
             icon: const Icon(Icons.filter_list),
             onPressed: () {
               setState(() {
@@ -397,7 +400,7 @@ class _EntryView extends State<EntryView> {
             },
           )),
           /* export */
-          Card(
+          if( !isTracking ) Card(
               child: IconButton(
                 icon: const Icon(Icons.file_upload_sharp),
                 onPressed: () {
