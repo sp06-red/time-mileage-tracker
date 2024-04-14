@@ -63,7 +63,6 @@ class Entry{
     }
   }
 
-
   void addtag(String tag){
     tags.add(tag);
   }

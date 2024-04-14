@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:time_mileage_tracker/entry.dart';
 import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'entry_list_manager.dart';
+import 'filterOptions.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -14,17 +16,112 @@ class EntryView extends StatefulWidget {
 class _EntryView extends State<EntryView> {
   EntryListManager listManager = EntryListManager();
   bool isTracking = false;
+  late FilterOptions filterOptions;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     setup();
   }
 
   Future<void> setup() async {
-    listManager = EntryListManager();
-    await Future.delayed(Duration(milliseconds:333));
+    listManager = await EntryListManager();
+    await Future.delayed(Duration(milliseconds: 333));
+    filterOptions = FilterOptions(listManager.globalList);
     setState(() {});
+  }
+
+  void _filter() async{
+
+    if(listManager.isGlobal){
+      filterOptions!.reset(listManager.globalList);
+    }
+
+    List<Entry> list = listManager.globalList;
+    double minDist = list.first.mileage;
+    double maxDist = minDist;
+    for (int i = 0; i != list.length; i++) {
+      if (list[i].mileage < minDist) minDist = list[i].mileage;
+      if (list[i].mileage > maxDist) maxDist = list[i].mileage;
+    }
+    // Create TextEditingController for each TextField
+    TextEditingController tags = TextEditingController(text: filterOptions!.tagList.join(' ') );
+
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Filter"),
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+              return Column(mainAxisSize: MainAxisSize.min, children: [
+                Card(
+                    child: SizedBox(
+                  width: 600,
+                  child: TextButton(
+                    child: Text(
+                        "${DateFormat.MMMd().format(filterOptions!.dateFilter!.start)} to ${DateFormat.MMMd().format(filterOptions!.dateFilter!.end)}"),
+                    onPressed: () async {
+                      filterOptions?.dateFilter = (await showDateRangePicker(
+                          context: context,
+                          firstDate: listManager.globalList.last.start,
+                          lastDate: listManager.globalList.first.end.add(const Duration(days:1))))!;
+                      setState;
+                    },
+                  ),
+                )),
+                /* Distance Range Slider */
+                Card(
+                  child: Column(
+                    children: [
+                      const Text("Distance"),
+                      RangeSlider(
+                        min: minDist,
+                        max: maxDist,
+                        divisions: 20,
+                        values: filterOptions!.distanceFilter,
+                        labels: RangeLabels(
+                          filterOptions!.distanceFilter.start.round().toString(),
+                          filterOptions!.distanceFilter.end.round().toString(),
+                        ),
+                        onChanged: (RangeValues values) {
+                          setState(() => filterOptions?.distanceFilter = values);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Card(
+                    child: TextField(
+                  controller: tags,
+                      onChanged: (value) {
+                    filterOptions!.tagList = value.split(' ');
+                  },
+                  decoration: const InputDecoration(hintText: "Tags: "),
+                ))
+              ]);
+            }),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    setState(() {
+                      filterOptions?.reset(listManager.globalList);
+                      listManager.reset();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Reset")),
+              TextButton(
+                  onPressed: () {
+                    setState(() {
+                      listManager.buildFilterListFromOptions(filterOptions!);
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Apply")),
+            ],
+          );
+        });
   }
 
   void _addEntry() async {
@@ -98,7 +195,7 @@ class _EntryView extends State<EntryView> {
                   Entry temp = Entry(start!, end!, mileage!);
                   temp.retag(tagList);
                   listManager.addEntry(temp);
-                  setState(() { /* Contents of entry list changed */ });
+                  setState(() {/* Contents of entry list changed */});
                   Navigator.of(context).pop();
                 }
               },
@@ -106,6 +203,33 @@ class _EntryView extends State<EntryView> {
           ],
         );
       },
+    );
+  }
+
+  void _clearListDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete all entries?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }
+            ),
+            TextButton(
+              child: const Text('Confirm'),
+              onPressed: () {
+                listManager.wipe();
+                setState((){});
+                Navigator.of(context).pop();
+              }
+            )
+          ]
+        );
+      }
     );
   }
 
@@ -190,6 +314,7 @@ class _EntryView extends State<EntryView> {
               child: const Text('Delete'),
               onPressed: () {
                 listManager.removeEntry(entry.hashCode);
+                listManager.buildFilterList(filterOptions!.dateFilter, filterOptions!.distanceFilter, filterOptions!.tagList);
                 setState(() {});
                 Navigator.of(context).pop();
               },
@@ -206,7 +331,7 @@ class _EntryView extends State<EntryView> {
                   entry.retag(tagList);
                   entry.duration = entry.end.difference(entry.start);
                   listManager.addEntry(entry);
-                  setState(() { /* Contents of entry list changed */ });
+                  setState(() {/* Contents of entry list changed */});
                   Navigator.of(context).pop();
                 }
               },
@@ -241,7 +366,7 @@ class _EntryView extends State<EntryView> {
         itemCount: listManager.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 3),
+            padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 3),
             child: Card(
               child: ListTile(
                 leading: const Icon(Icons.local_taxi),
@@ -254,36 +379,57 @@ class _EntryView extends State<EntryView> {
       ),
       bottomNavigationBar: BottomAppBar(
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Card(
-                child: IconButton(
-                    icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
-                    onPressed: () {
-                      setState(() {
-                        _toggleGPSTracking();
-                      });
-                    }),
-              ),
-              Card(
-                child: IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      _addEntry();
-                    }),
-              ),
-              Card(
-                  child: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: (){
-                      setState(() {
-                        listManager.wipe();
-                      });},
-                  )
-              )
-            ],
-          )
-      ),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          /* GPS toggle switch */
+          Card(
+            child: IconButton(
+                icon: Icon(isTracking ? Icons.stop : Icons.play_arrow),
+                onPressed: () {
+                  setState(() {
+                    _toggleGPSTracking();
+                  });
+                }),
+          ),
+          /* Manual entry add */
+          Card(
+            child: IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  _addEntry();
+                }),
+          ),
+          /* Flush list */
+          Card(
+              child: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              _clearListDialog();
+            },
+          )),
+          /* Filter */
+          Card(
+              child: IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              setState(() {
+                _filter();
+              });
+            },
+          )),
+          /* export */
+          Card(
+              child: IconButton(
+                icon: const Icon(Icons.file_upload_sharp),
+                onPressed: () {
+                  setState(() {
+                    _filter();
+                  });
+                },
+              )),
+        ],
+      )),
     );
   }
 }
