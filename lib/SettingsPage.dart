@@ -38,9 +38,20 @@ class SettingsPage extends StatelessWidget {
                 onPressed: (BuildContext context){
                 },
               ),
-              SettingsTile(
+    ]
+    ),
+    SettingsSection(
+      title: const Text("GPS and Location"),
+      tiles: [
+              SettingsTile.switchTile(
                 title: const Text('Auto-tag locations'),
-                description: const Text("Modify saved locations to automatically apply tags based on trip start/end locations"),
+                leading: const Icon(Icons.format_paint_sharp),
+                initialValue: true,
+                onToggle: (bool value) { },
+              ),
+              SettingsTile(
+                title: const Text('Auto-tag location list'),
+                description: const Text("Modify saved locations to automatically apply tags according to start/end locations"),
                 leading: const Icon(Icons.edit_location_alt),
                 onPressed: (BuildContext context){
                 },
