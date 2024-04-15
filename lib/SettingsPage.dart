@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
-import 'SettingsManager.dart';
-
+import 'Settings.dart';
 
 class SettingsPage extends StatefulWidget{
   const SettingsPage({
@@ -114,6 +113,7 @@ class _SettingsPage extends State<SettingsPage> {
         child: IconButton(
           icon: Icon(Icons.save),
           onPressed: () {
+            Navigator.pop(context, settings);
           },
         ),
       ),

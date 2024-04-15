@@ -6,7 +6,7 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'EntryListManager.dart';
 import 'FilterOptions.dart';
 import 'SettingsPage.dart';
-import 'SettingsManager.dart';
+import 'Settings.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -19,6 +19,7 @@ class _EntryView extends State<EntryView> {
   EntryListManager listManager = EntryListManager();
   bool isTracking = false;
   late FilterOptions filterOptions;
+  Settings settings = Settings.stock();
 
   @override
   void initState() {
@@ -365,11 +366,11 @@ class _EntryView extends State<EntryView> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed:() {
-              Navigator.push(
+            onPressed:() async {
+              settings = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SettingsPage(settings: Settings.stock())),
+                  builder: (context) => SettingsPage(settings: settings)),
                 );
             }
           )

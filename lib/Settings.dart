@@ -1,4 +1,6 @@
 import 'SavedLocationsManager.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class Settings{
   int pollRate = 5;
@@ -20,4 +22,6 @@ class Settings{
   }
 
   Settings.fromJson(String path){}
+
+  save(){}
 }
