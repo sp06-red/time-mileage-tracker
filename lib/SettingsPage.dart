@@ -1,43 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
-class SavedLocation{
-  late String label;
-  late double lat;
-  late double lon;
+import 'SettingsManager.dart';
 
-  SavedLocation(this.label, this.lat, this.lon);
 
-  @override
-  String toString() {
-    return "$label ${lat.toStringAsFixed(4)} ${lon.toStringAsFixed(4)}";
-  }
-}
-
-class Settings{
-  int pollRate = 5;
-  List<SavedLocation> savedLocations =  <SavedLocation>[];
-  bool metric = false;
-  bool autoTag = false;
-  bool followDeviceTheme = false;
-
-  Settings(this.pollRate, this.savedLocations, this.metric, this.autoTag, this.followDeviceTheme);
-
-  Settings.stock();
-
-  Settings.fromJson(String path){}
-
-}
 class SettingsPage extends StatefulWidget{
   const SettingsPage({
     super.key,
+    required this.settings,
+    this.child,
   });
+
+  final Settings settings;
+  final Widget? child;
 
   @override
   State<SettingsPage> createState() => _SettingsPage();
 }
 
 class _SettingsPage extends State<SettingsPage> {
-  Settings settings = Settings.stock();
+  late Settings settings;
+
+  @override
+  void initState() {
+    super.initState();
+    settings = Settings.from(widget.settings);
+  }
 
   @override
   Widget build(BuildContext context) {

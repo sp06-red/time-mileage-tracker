@@ -6,6 +6,7 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'EntryListManager.dart';
 import 'FilterOptions.dart';
 import 'SettingsPage.dart';
+import 'SettingsManager.dart';
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -26,8 +27,8 @@ class _EntryView extends State<EntryView> {
   }
 
   Future<void> setup() async {
-    listManager = await EntryListManager();
-    await Future.delayed(Duration(milliseconds: 333));
+    listManager = EntryListManager();
+    await Future.delayed(const Duration(milliseconds: 333));
     filterOptions = FilterOptions(listManager.globalList);
     setState(() {});
   }
@@ -63,7 +64,7 @@ class _EntryView extends State<EntryView> {
                     child: Text(
                         "${DateFormat.MMMd().format(filterOptions!.dateFilter!.start)} to ${DateFormat.MMMd().format(filterOptions!.dateFilter!.end)}"),
                     onPressed: () async {
-                      filterOptions?.dateFilter = (await showDateRangePicker(
+                      filterOptions.dateFilter = (await showDateRangePicker(
                           context: context,
                           firstDate: listManager.globalList.last.start,
                           lastDate: listManager.globalList.first.end.add(const Duration(days:1))))!;
@@ -368,7 +369,7 @@ class _EntryView extends State<EntryView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SettingsPage()),
+                  builder: (context) => SettingsPage(settings: Settings.stock())),
                 );
             }
           )
