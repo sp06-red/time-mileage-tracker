@@ -1,8 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+class SavedLocation{
+  late String label;
+  late double lat;
+  late double lon;
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+  SavedLocation(this.label, this.lat, this.lon);
+
+  @override
+  String toString() {
+    return "$label ${lat.toStringAsFixed(4)} ${lon.toStringAsFixed(4)}";
+  }
+}
+
+class Settings{
+  int pollRate = 5;
+  List<SavedLocation> savedLocations =  <SavedLocation>[];
+  bool metric = false;
+  bool autoTag = false;
+  bool followDeviceTheme = false;
+
+  Settings(this.pollRate, this.savedLocations, this.metric, this.autoTag, this.followDeviceTheme);
+
+  Settings.stock();
+
+  Settings.fromJson(String path){}
+
+}
+class SettingsPage extends StatefulWidget{
+  const SettingsPage({
+    super.key,
+  });
+
+  @override
+  State<SettingsPage> createState() => _SettingsPage();
+}
+
+class _SettingsPage extends State<SettingsPage> {
+  Settings settings = Settings.stock();
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +63,12 @@ class SettingsPage extends StatelessWidget {
               SettingsTile.switchTile(
                 title: const Text('Follow device theme'),
                 leading: const Icon(Icons.format_paint_sharp),
-                initialValue: true,
-                onToggle: (bool value) { },
+                initialValue: settings.followDeviceTheme,
+                onToggle: (bool value) {
+                  setState(() {
+                    settings.followDeviceTheme = value;
+                  });
+                },
               ),
               SettingsTile(
                 title: const Text('Set unit preference'),
@@ -46,8 +85,12 @@ class SettingsPage extends StatelessWidget {
               SettingsTile.switchTile(
                 title: const Text('Auto-tag locations'),
                 leading: const Icon(Icons.tag),
-                initialValue: false,
-                onToggle: (bool value) { },
+                initialValue: settings.autoTag,
+                onToggle: (bool value) {
+                  setState(() {
+                    settings.autoTag = value;
+                  });
+                },
               ),
               SettingsTile(
                 title: const Text('Auto-tag location list'),
@@ -78,6 +121,14 @@ class SettingsPage extends StatelessWidget {
             ],
           ),
         ],
+      ),
+      floatingActionButton: 
+      Card(
+        child: IconButton(
+          icon: Icon(Icons.save),
+          onPressed: () {
+          },
+        ),
       ),
     );
   }
