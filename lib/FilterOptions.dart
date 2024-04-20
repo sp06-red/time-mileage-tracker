@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'entry.dart';
+import 'Entry.dart';
 
 class FilterOptions {
   late DateTimeRange dateFilter;

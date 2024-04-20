@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'entry_view.dart';
+import 'EntryView.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +14,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
+        brightness: Brightness.light,
       ),
-      home: const EntryView(title: 'SP06 Red - Time Mileage Tracker'),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      home: const EntryView(title: 'Mileage Tracker'),
     );
   }
 }

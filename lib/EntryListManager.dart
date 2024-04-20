@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'storage_manager.dart';
-import 'entry.dart';
-import 'filterOptions.dart';
+import 'StorageManager.dart';
+import 'Entry.dart';
+import 'FilterOptions.dart';
 
 class EntryListManager with ChangeNotifier{
   List<Entry> globalList = <Entry>[];
@@ -15,6 +15,8 @@ class EntryListManager with ChangeNotifier{
 
   void wipe(){
     globalList = <Entry>[];
+    activeList = globalList;
+    activeIsGlobal = true;
     _save();
     notifyListeners();
   }
