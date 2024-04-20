@@ -323,12 +323,13 @@ class _EntryView extends State<EntryView> {
 
   GPSTrip gpsTrip = GPSTrip();
   void _toggleGPSTracking() async {
+    gpsTrip.setAutoTagList(savedLocationManager);
     if (isTracking) {
       isTracking = false;
-      listManager.addEntry(await gpsTrip.endTrip());
+      listManager.addEntry(await gpsTrip.endTrip(settings.autoTag));
     } else {
       isTracking = true;
-      gpsTrip.startTrip();
+      gpsTrip.startTrip(settings.autoTag);
     }
   }
 

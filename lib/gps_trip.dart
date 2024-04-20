@@ -1,6 +1,9 @@
+import 'dart:ffi';
+
 import 'package:geolocator/geolocator.dart'; // For geolocation features
 import 'Entry.dart'; // For the Entry class
 import 'dart:async'; // For asynchronous programming
+import 'SavedLocationsManager.dart';
 
 // Defining the GPSTrip class
 class GPSTrip {
@@ -10,6 +13,8 @@ class GPSTrip {
   late Position last; // Start position of the trip
   double totalDistance = 0.0; // Total distance of the trip
   StreamSubscription<Position>? positionStreamSubscription; // Subscription to the position stream
+  late SavedLocationManager savedLocations;
+  late Entry currentTrip;
 
   final LocationSettings locationSettings = AndroidSettings(
     accuracy: LocationAccuracy.high,
@@ -49,22 +54,39 @@ class GPSTrip {
     }
   }
 
+  void setAutoTagList(SavedLocationManager manager){
+    savedLocations = manager;
+  }
+
+  _autoTag(Position pos){
+    String tag = savedLocations.listContains(pos);
+    if (tag != "-1"){
+      currentTrip.addtag(tag);
+    }
+  }
+
   // Method to start the trip
-  void startTrip() async {
+  void startTrip(bool autoTag) async {
+    currentTrip = Entry.blank();
     start = DateTime.now();
+    currentTrip.start = start;
     permissionCheck();
     last = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    if(autoTag) _autoTag(last);
     await _trackLocation();
   }
 
   // Method to end the trip
-  Future<Entry> endTrip() async {
+  Future<Entry> endTrip(autoTag) async {
     end = DateTime.now(); // Set the end time to the current time
     positionStreamSubscription?.cancel(); // Cancel the position stream subscription
     positionStreamSubscription = null; // Set the subscription to null after cancelling
-    Entry out = Entry(start,end,totalDistance);
-    totalDistance=0;
-    return out;
+    currentTrip.end = end;
+    currentTrip.mileage = totalDistance;
+    currentTrip.duration = end.difference(currentTrip.start);
+    if(autoTag) _autoTag(last);
+    totalDistance = 0;
+    return currentTrip;
   }
 
   Future<Position> getLocation() async {

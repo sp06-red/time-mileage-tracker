@@ -11,6 +11,8 @@ class Entry{
     duration = end.difference(start);
   }
 
+  Entry.blank();
+
   Entry.fromCSV(String csv){
     List<String> parts = csv.split(',');
     start = DateTime.parse(parts[0]);

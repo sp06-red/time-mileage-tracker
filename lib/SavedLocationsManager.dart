@@ -44,11 +44,7 @@ class SavedLocationManager{
   String listContains(Position coordinates){
     for(SavedLocation location in locations){
       Position temp = location.position;
-      double center_x = temp.longitude;
-      double center_y = temp.latitude;
-      double x = coordinates.longitude;
-      double y = coordinates.latitude;
-      if(pow(x-center_x, 2) + pow(y-center_y, 2) < 5^2){
+      if(Geolocator.distanceBetween(temp.latitude, temp.longitude, coordinates.latitude, coordinates.longitude) <= 10){
         return location.label;
       }
     }
