@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:time_mileage_tracker/Entry.dart';
+import 'package:time_mileage_tracker/SavedLocationsManager.dart';
 import 'gps_trip.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'EntryListManager.dart';
 import 'FilterOptions.dart';
 import 'SettingsPage.dart';
 import 'Settings.dart';
+import 'package:geolocator/geolocator.dart'; // For geolocation features
 
 class EntryView extends StatefulWidget {
   const EntryView({super.key, required this.title});
@@ -20,11 +22,13 @@ class _EntryView extends State<EntryView> {
   bool isTracking = false;
   late FilterOptions filterOptions;
   Settings settings = Settings.stock();
+  late SavedLocationManager savedLocationManager;
 
   @override
   void initState() {
     super.initState();
     setup();
+    savedLocationManager = SavedLocationManager();
   }
 
   Future<void> setup() async {
@@ -35,7 +39,6 @@ class _EntryView extends State<EntryView> {
   }
 
   void _filter() async{
-
     if(listManager.isGlobal){
       filterOptions!.reset(listManager.globalList);
     }
@@ -209,33 +212,6 @@ class _EntryView extends State<EntryView> {
     );
   }
 
-  void _clearListDialog() async {
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: const Text("Delete all entries?"),
-              actions: <Widget>[
-                TextButton(
-                    child: const Text('Cancel'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    }
-                ),
-                TextButton(
-                    child: const Text('Confirm'),
-                    onPressed: () {
-                      listManager.wipe();
-                      setState((){});
-                      Navigator.of(context).pop();
-                    }
-                )
-              ]
-          );
-        }
-    );
-  }
-
   void _editEntry(Entry entry, int index) async {
     DateTime? start = entry.start;
     DateTime? end = entry.end;
@@ -356,6 +332,64 @@ class _EntryView extends State<EntryView> {
     }
   }
 
+  void _newLocationDialog() async {
+    String locationName="";
+    Position location = await gpsTrip.getLocation();
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text("Add to Auto-tag List"),
+              content: Column(
+                children: [
+                  Text("Naming ${location.longitude.toStringAsFixed(4)}:${location.latitude.toStringAsFixed(4)}"),
+                  TextField(
+                  onChanged: (value) {
+                    locationName = value;
+                  },
+                  decoration: const InputDecoration(hintText: "Location name"),
+                ),
+        ]
+              ),
+              actions: <Widget>[
+                TextButton(
+                    child: const Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }
+                ),
+                TextButton(
+                    child: const Text('Save'),
+                    onPressed: () async {
+                      String existing_location = savedLocationManager.listContains(location);
+                      if(existing_location == "-1"){
+                        savedLocationManager.add(SavedLocation(locationName, location));
+                        Navigator.of(context).pop();
+                      }
+                      else{
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext ctxt){
+                              return AlertDialog(
+                                content: Text("Location already in list\nNamed: $existing_location"),
+                                actions: [
+                                  TextButton(
+                                     child: const Text("ok :("),
+                                    onPressed: () { Navigator.of(context).pop(); },
+                                  )
+                                ],
+                              );
+                            }
+                        );
+                      }
+                    }
+                ),
+              ]
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     setState(() {});
@@ -370,7 +404,7 @@ class _EntryView extends State<EntryView> {
               var result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SettingsPage(settings: settings, entryListManager: listManager)),
+                  builder: (context) => SettingsPage(savedLocationsManager: savedLocationManager, settings: settings, entryListManager: listManager)),
                 );
               settings = result[0];
               listManager = result[1];
@@ -426,7 +460,14 @@ class _EntryView extends State<EntryView> {
                   _addEntry();
                 }),
           ),
-          /* Flush list */
+          /* Add new location tag */
+          if( !isTracking ) Card(
+              child: IconButton(
+                icon: const Icon(Icons.add_location_alt),
+                onPressed: () {
+                  _newLocationDialog();
+                },
+              )),
           /* Filter */
           if( !isTracking ) Card(
               child: IconButton(

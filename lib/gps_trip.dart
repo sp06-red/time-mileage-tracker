@@ -67,6 +67,11 @@ class GPSTrip {
     return out;
   }
 
+  Future<Position> getLocation() async {
+    permissionCheck();
+    return Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
+
   // Method to track the location during the trip
   Future<void> _trackLocation() async {
       positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position current) { // Subscribe to the position stream
