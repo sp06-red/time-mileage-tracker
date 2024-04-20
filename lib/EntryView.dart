@@ -367,11 +367,14 @@ class _EntryView extends State<EntryView> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed:() async {
-              settings = await Navigator.push(
+              var result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SettingsPage(settings: settings)),
+                  builder: (context) => SettingsPage(settings: settings, entryListManager: listManager)),
                 );
+              settings = result[0];
+              listManager = result[1];
+              setState(() {});
             }
           )
         ]
@@ -424,13 +427,6 @@ class _EntryView extends State<EntryView> {
                 }),
           ),
           /* Flush list */
-          if( !isTracking )Card(
-              child: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  _clearListDialog();
-                },
-              )),
           /* Filter */
           if( !isTracking ) Card(
               child: IconButton(

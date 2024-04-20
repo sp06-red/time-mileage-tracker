@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+import 'package:time_mileage_tracker/EntryListManager.dart';
 import 'Settings.dart';
 
 class SettingsPage extends StatefulWidget{
   const SettingsPage({
     super.key,
     required this.settings,
+    required this.entryListManager,
     this.child,
   });
 
+  final EntryListManager entryListManager;
   final Settings settings;
   final Widget? child;
 
@@ -18,11 +21,15 @@ class SettingsPage extends StatefulWidget{
 
 class _SettingsPage extends State<SettingsPage> {
   late Settings settings;
+  late EntryListManager listManager;
+  late var value;
 
   @override
   void initState() {
     super.initState();
     settings = Settings.from(widget.settings);
+    listManager = widget.entryListManager;
+    value = [settings, listManager];
   }
 
   @override
@@ -102,6 +109,8 @@ class _SettingsPage extends State<SettingsPage> {
                   description: const Text("Deletes all entries in entry list"),
                   leading: const Icon(Icons.delete),
                 onPressed: (BuildContext context){
+                    listManager.wipe();
+                    value[1] = listManager;
                 },
               )
             ],
@@ -113,7 +122,7 @@ class _SettingsPage extends State<SettingsPage> {
         child: IconButton(
           icon: Icon(Icons.save),
           onPressed: () {
-            Navigator.pop(context, settings);
+            Navigator.pop(context, value);
           },
         ),
       ),
